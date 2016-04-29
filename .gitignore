@@ -16,3 +16,6 @@ cli/TinyBasicPlus.cpp
 cli/tbp
 notes.txt
 
+**/.vs
+**/Debug
+/Arduino/__vm
