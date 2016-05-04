@@ -6,7 +6,7 @@
 //	    Scott Lawrence <yorgle@gmail.com>
 //
 
-#define kVersion "v0.13"
+#define kVersion "v0.14"
 
 // v0.13: 2013-03-04
 //      Support for Arduino 1.5 (SPI.h included, additional changes for DUE support)
@@ -77,14 +77,14 @@
 // IF testing with Visual C, this needs to be the first thing in the file.
 //#include "stdafx.h"
 
-
-char eliminateCompileErrors = 1;  // fix to suppress arduino build errors
+// char eliminateCompileErrors = 1;  // fix to suppress arduino build errors
 
 // hack to let makefiles work with this file unchanged
 #ifdef FORCE_DESKTOP 
 #undef ARDUINO
 #else
-#define ARDUINO 1
+#include <Arduino.h>
+//#define ARDUINO 1
 #endif
 
 
@@ -95,6 +95,9 @@ char eliminateCompileErrors = 1;  // fix to suppress arduino build errors
 // it adds 9k of usage as well.
 //#define ENABLE_FILEIO 1
 #undef ENABLE_FILEIO
+
+// Enable output via SPI display
+#define ENABLE_DISPLAY
 
 // this turns on "autorun".  if there's FileIO, and a file "autorun.bas",
 // then it will load it and run it when starting up
@@ -165,6 +168,20 @@ int eepos = 0;
 #define kSD_OK    1
 
 File fp;
+#endif
+
+#ifdef ENABLE_DISPLAY
+#include <Adafruit_GFX.h>
+#include <Adafruit_ST7735.h>
+
+#define TFT_CS     10
+#define TFT_RST    9  
+#define TFT_DC     8
+
+#define TFT_SCLK 13   
+#define TFT_MOSI 11   
+
+Adafruit_ST7735 display = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
 #endif
 
 // set up our RAM buffer size for program and user input
@@ -318,6 +335,9 @@ static const unsigned char keywords[] PROGMEM = {
   'E','S','A','V','E'+0x80,
 #endif
 #endif
+#ifdef ENABLE_DISPLAY
+  'S','C','O','L','O','R'+0x80,
+#endif
   0
 };
 
@@ -348,6 +368,9 @@ enum {
 #ifdef ENABLE_EEPROM
   KW_ECHAIN, KW_ELIST, KW_ELOAD, KW_EFORMAT, KW_ESAVE, 
 #endif
+#endif
+#ifdef ENABLE_DISPLAY
+  KW_SCOLOR,
 #endif
   KW_DEFAULT /* always the final one*/
 };
@@ -1260,6 +1283,11 @@ interperateAtTxtpos:
 #endif
 #endif
 
+#ifdef ENABLE_DISPLAY
+  case KW_SCOLOR:
+	  goto scolor;
+#endif
+
   case KW_DEFAULT:
     goto assignment;
   default:
@@ -1864,6 +1892,25 @@ tonegen:
     goto run_next_statement;
   }
 #endif /* ENABLE_TONES */
+
+#ifdef ENABLE_DISPLAY
+  scolor:
+  {
+	  // SCOLOR color
+	  short int color;
+
+	  //Get the color
+	  expression_error = 0;
+	  color = expression();
+	  if (expression_error)
+		  goto qwhat;
+
+	  ignore_blanks();
+
+	  display.setTextColor(ST7735_WHITE, color);
+	  goto run_next_statement;
+  }
+#endif /* ENABLE_DISPLAY */
 }
 
 // returns 1 if the character is valid in a filename
@@ -1921,9 +1968,23 @@ void setup()
 {
 #ifdef ARDUINO
   Serial.begin(kConsoleBaud);	// opens serial port
+
+#ifdef ENABLE_DISPLAY
+  display.initR(INITR_BLACKTAB);  // You will need to do this in every sketch
+  display.fillScreen(ST7735_BLACK);
+
+  //tft print function!
+  display.setTextColor(ST7735_WHITE);
+  display.setTextSize(0);
+  display.setCursor(0, 0);
+#endif
+
   while( !Serial ); // for Leonardo
   
   Serial.println( sentinel );
+#ifdef ENABLE_DISPLAY
+  display.println(sentinel);
+#endif
   printmsg(initmsg);
 
 #ifdef ENABLE_FILEIO
@@ -2060,6 +2121,21 @@ static void outchar(unsigned char c)
   #endif /* ENABLE_EEPROM */
   #endif /* ARDUINO */
     Serial.write(c);
+#ifdef ENABLE_DISPLAY
+	int16_t ypos = display.getCursorY();
+	if (ypos > 160)
+	{
+		display.setCursor(0, 0);
+	}
+
+	int16_t xpos = display.getCursorX();
+	if (xpos == 0)
+	{
+		display.fillRect(0, ypos, 160, 8, ST7735_BLACK);
+	}
+
+	display.write(c);
+#endif
 
 #else
   putchar(c);
