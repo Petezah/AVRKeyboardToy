@@ -697,7 +697,7 @@ static void getln(char prompt)
 		  if (xpos > 0)
 		  {
 			  xpos -= CHAR_WIDTH;
-			  display.fillRect(xpos, ypos, CHAR_WIDTH, CHAR_HEIGHT, ST7735_BLACK);
+			  display.fillRect(xpos, ypos, CHAR_WIDTH * 2, CHAR_HEIGHT, ST7735_BLACK); // Erase last char and cursor
 			  display.setCursor(xpos, ypos);
 		  }
 	  }
@@ -2095,6 +2095,21 @@ static int inchar()
     {
       if(Serial.available())
         return Serial.read();
+
+#ifdef ENABLE_DISPLAY
+	  static bool cursorVisible = true;
+	  static unsigned long lastCursorMillis = millis();
+	  unsigned long cursorMillis = millis();
+	  if ((cursorMillis - lastCursorMillis) > 1000)
+	  {
+		  lastCursorMillis = cursorMillis;
+		  cursorVisible = cursorVisible ? false : true;
+	  }
+
+	  int16_t xpos = display.getCursorX();
+	  int16_t ypos = display.getCursorY();
+	  display.fillRect(xpos, ypos, CHAR_WIDTH, CHAR_HEIGHT, cursorVisible ? ST7735_WHITE : ST7735_BLACK);
+#endif
     }
   }
   
@@ -2156,6 +2171,7 @@ static void outchar(unsigned char c, bool suppressDisplayOut)
 			display.fillRect(0, ypos, DISPLAY_WIDTH, CHAR_HEIGHT, ST7735_BLACK);
 		}
 
+		display.fillRect(xpos, ypos, CHAR_WIDTH, CHAR_HEIGHT, ST7735_BLACK); // Erase the cursor
 		display.write(c);
 	}
 #endif
