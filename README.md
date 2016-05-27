@@ -191,7 +191,7 @@ List both, and run
 
 - Jurg Wullschleger - Fix for unary operations and whitespace in expressions
 
-- AVR Keyboard Toy - Peter Dunshee <peterdun@outlook.com> [Github Page](http://github.com/Petezah/TinyBasicPlus)
+- AVR Keyboard Toy - Peter Dunshee <peterdun@outlook.com> [Github Page](https://github.com/Petezah/AVRKeyboardToy)
 
 # Links
 - [Arduino Microcontroller](http://arduino.cc)
