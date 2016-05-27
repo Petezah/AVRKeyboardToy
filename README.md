@@ -1,5 +1,15 @@
-TinyBasic Plus
-==============
+AVR Keyboard Toy
+================
+
+This is beginning as a fork of TinyBasic Plus, whose description
+is below.  The intention is to build a self-contained computer-in-
+a-keyboard device using an old PS/2 Keyboard and an AVR-based
+microcontroller board, outputting display output to a visual display
+output--in my case, a 160x160 SPI TFT display.  
+
+The description for TinyBasic Plus is as follows:
+
+# TinyBasic Plus
 
 A C implementation of Tiny Basic, with a focus on support for
 Arduino.  It was originally written by Gordon Brandly in the form
@@ -180,6 +190,8 @@ List both, and run
 - Tiny Basic Plus - Scott Lawrence <yorgle@gmail.com> [Github Page](http://github.com/BleuLlama/TinyBasicPlus]
 
 - Jurg Wullschleger - Fix for unary operations and whitespace in expressions
+
+- AVR Keyboard Toy - Peter Dunshee <peterdun@outlook.com> [Github Page](http://github.com/Petezah/TinyBasicPlus)
 
 # Links
 - [Arduino Microcontroller](http://arduino.cc)
