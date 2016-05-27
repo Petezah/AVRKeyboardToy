@@ -99,6 +99,9 @@
 // Enable output via SPI display
 #define ENABLE_DISPLAY
 
+// Enable input via PS/2 Keyboard
+#define ENABLE_KEYBOARD
+
 // this turns on "autorun".  if there's FileIO, and a file "autorun.bas",
 // then it will load it and run it when starting up
 //#define ENABLE_AUTORUN 1
@@ -187,6 +190,16 @@ File fp;
 #define DISPLAY_HEIGHT 160
 
 Adafruit_ST7735 display = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
+#endif
+
+#ifdef ENABLE_KEYBOARD
+#include <PS2Keyboard.h>
+
+// Pins
+#define KEYBOARD_DATA 4
+#define KEYBOARD_CLK 3
+
+PS2Keyboard keyboard;
 #endif
 
 // set up our RAM buffer size for program and user input
@@ -1999,6 +2012,10 @@ void setup()
   display.setCursor(0, 0);
 #endif
 
+#ifdef ENABLE_KEYBOARD
+  keyboard.begin(KEYBOARD_DATA, KEYBOARD_CLK);
+#endif
+
   while( !Serial ); // for Leonardo
   
   Serial.println( sentinel );
@@ -2093,8 +2110,15 @@ static int inchar()
   default:
     while(1)
     {
+#ifndef ENABLE_KEYBOARD
       if(Serial.available())
         return Serial.read();
+#else
+      if (keyboard.available())
+        return keyboard.read();
+      //else if (Serial.available()) // Keep serial for debug purposes
+      //  return Serial.read();
+#endif
 
 #ifdef ENABLE_DISPLAY
 	  static bool cursorVisible = true;
