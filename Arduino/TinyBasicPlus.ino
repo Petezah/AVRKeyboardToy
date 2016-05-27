@@ -115,8 +115,8 @@
 // element on the specified pin.  Wire the red/positive/piezo to the kPiezoPin,
 // and the black/negative/metal disc to ground.
 // it adds 1.5k of usage as well.
-//#define ENABLE_TONES 1
-#undef ENABLE_TONES
+#define ENABLE_TONES 1
+//#undef ENABLE_TONES
 #define kPiezoPin 5
 
 // we can use the EEProm to store a program during powerdown.  This is 
@@ -180,6 +180,11 @@ File fp;
 
 #define TFT_SCLK 13   
 #define TFT_MOSI 11   
+
+#define CHAR_WIDTH 6
+#define CHAR_HEIGHT 8
+#define DISPLAY_WIDTH 160
+#define DISPLAY_HEIGHT 160
 
 Adafruit_ST7735 display = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
 #endif
@@ -275,6 +280,7 @@ static unsigned char outStream = kStreamSerial;
 #define CTRLH	0x08
 #define CTRLS	0x13
 #define CTRLX	0x18
+#define DELETE  0x7F
 
 typedef short unsigned LINENUM;
 #ifdef ARDUINO
@@ -483,7 +489,7 @@ static const unsigned char slashmsg[]         PROGMEM = "/";
 static const unsigned char spacemsg[]         PROGMEM = " ";
 
 static int inchar(void);
-static void outchar(unsigned char c);
+static void outchar(unsigned char c, bool suppressDisplayOut = false);
 static void line_terminator(void);
 static short int expression(void);
 static unsigned char breakcheck(void);
@@ -667,6 +673,7 @@ static void getln(char prompt)
   while(1)
   {
     char c = inchar();
+	//printnum(c); //debug
     switch(c)
     {
     case NL:
@@ -677,11 +684,24 @@ static void getln(char prompt)
       txtpos[0] = NL;
       return;
     case CTRLH:
+	case DELETE:
       if(txtpos == program_end)
         break;
       txtpos--;
 
-      printmsg(backspacemsg);
+	  outchar(c, true); // Suppress display
+#ifdef ENABLE_DISPLAY
+	  {
+		  int16_t xpos = display.getCursorX();
+		  int16_t ypos = display.getCursorY();
+		  if (xpos > 0)
+		  {
+			  xpos -= CHAR_WIDTH;
+			  display.fillRect(xpos, ypos, CHAR_WIDTH, CHAR_HEIGHT, ST7735_BLACK);
+			  display.setCursor(xpos, ypos);
+		  }
+	  }
+#endif
       break;
     default:
       // We need to leave at least one space to allow us to shuffle the line into order
@@ -2100,7 +2120,7 @@ inchar_loadfinish:
 }
 
 /***********************************************************/
-static void outchar(unsigned char c)
+static void outchar(unsigned char c, bool suppressDisplayOut)
 {
   if( inhibitOutput ) return;
 
@@ -2122,19 +2142,22 @@ static void outchar(unsigned char c)
   #endif /* ARDUINO */
     Serial.write(c);
 #ifdef ENABLE_DISPLAY
-	int16_t ypos = display.getCursorY();
-	if (ypos > 160)
+	if (!suppressDisplayOut)
 	{
-		display.setCursor(0, 0);
-	}
+		int16_t ypos = display.getCursorY();
+		if (ypos > DISPLAY_HEIGHT)
+		{
+			display.setCursor(0, 0);
+		}
 
-	int16_t xpos = display.getCursorX();
-	if (xpos == 0)
-	{
-		display.fillRect(0, ypos, 160, 8, ST7735_BLACK);
-	}
+		int16_t xpos = display.getCursorX();
+		if (xpos == 0)
+		{
+			display.fillRect(0, ypos, DISPLAY_WIDTH, CHAR_HEIGHT, ST7735_BLACK);
+		}
 
-	display.write(c);
+		display.write(c);
+	}
 #endif
 
 #else
