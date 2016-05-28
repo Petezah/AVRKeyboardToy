@@ -193,13 +193,13 @@ Adafruit_ST7735 display = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
 #endif
 
 #ifdef ENABLE_KEYBOARD
-#include <PS2Keyboard.h>
+#include <PS2KeyAdvanced.h>
 
 // Pins
 #define KEYBOARD_DATA 4
 #define KEYBOARD_CLK 3
 
-PS2Keyboard keyboard;
+PS2KeyAdvanced keyboard;
 #endif
 
 // set up our RAM buffer size for program and user input
@@ -501,7 +501,7 @@ static const unsigned char dirextmsg[]        PROGMEM = "(dir)";
 static const unsigned char slashmsg[]         PROGMEM = "/";
 static const unsigned char spacemsg[]         PROGMEM = " ";
 
-static int inchar(void);
+static uint16_t inchar(void);
 static void outchar(unsigned char c, bool suppressDisplayOut = false);
 static void line_terminator(void);
 static short int expression(void);
@@ -685,7 +685,16 @@ static void getln(char prompt)
 
   while(1)
   {
-    char c = inchar();
+    uint16_t code = inchar();
+#ifdef ENABLE_KEYBOARD
+	// in keyboard case, the top bits are status and the bottom bits are the scan code.
+	// We need to check the status code, because we only care about keydown, not keyup
+	char c = ((char)code & 0xFF);
+	if ((code & PS2_BREAK) != 0) // break flag means keyup
+		continue; // skip
+#else
+	char c = (char)code;
+#endif
 	//printnum(c); //debug
     switch(c)
     {
@@ -2074,7 +2083,7 @@ static unsigned char breakcheck(void)
 #endif
 }
 /***********************************************************/
-static int inchar()
+static uint16_t inchar()
 {
   int v;
 #ifdef ARDUINO
