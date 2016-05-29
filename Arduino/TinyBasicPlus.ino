@@ -6,6 +6,7 @@
 //	    Scott Lawrence <yorgle@gmail.com>
 //
 
+#include "KeyboardUtil.h"
 #define kVersion "v0.14"
 
 // v0.13: 2013-03-04
@@ -194,6 +195,7 @@ Adafruit_ST7735 display = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
 
 #ifdef ENABLE_KEYBOARD
 #include <PS2KeyAdvanced.h>
+#include "KeyboardUtil.h"
 
 // Pins
 #define KEYBOARD_DATA 4
@@ -687,11 +689,9 @@ static void getln(char prompt)
   {
     uint16_t code = inchar();
 #ifdef ENABLE_KEYBOARD
-	// in keyboard case, the top bits are status and the bottom bits are the scan code.
-	// We need to check the status code, because we only care about keydown, not keyup
-	char c = ((char)code & 0xFF);
-	if ((code & PS2_BREAK) != 0) // break flag means keyup
-		continue; // skip
+	char c;
+	if (!TranslateKey(code, &c))
+		continue; // skip non-printables
 #else
 	char c = (char)code;
 #endif

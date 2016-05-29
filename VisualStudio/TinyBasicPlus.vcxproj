@@ -69,11 +69,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\Arduino\KeyboardUtil.h" />
     <ClInclude Include="__vm\.Arduino.vsarduino.h" />
     <ClInclude Include="__vm\.TinyBasicPlus.vsarduino.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Arduino\TinyBasicPlus.ino" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Arduino\KeyboardUtil.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
