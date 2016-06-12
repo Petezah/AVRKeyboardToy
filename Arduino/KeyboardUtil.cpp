@@ -49,6 +49,12 @@ bool TranslateKey(uint16_t code, char *pOutChar)
 				*pOutChar = c;
 			}
 		}
+		else if (c >= PS2_KEY_0 && c <= PS2_KEY_9 && shift)
+		{
+			char *pSpecial = ")!@#$%^&*(";
+			char idx = c - PS2_KEY_0;
+			*pOutChar = pSpecial[idx];
+		}
 		else if (c >= PS2_KEY_KP0 && c <= PS2_KEY_KP9)
 		{
 			char num = c - PS2_KEY_KP0;
@@ -64,20 +70,20 @@ bool TranslateKey(uint16_t code, char *pOutChar)
 			case PS2_KEY_KP_MINUS : *pOutChar = '-';  break; //0x2D
 			case PS2_KEY_KP_TIMES : *pOutChar = '*';  break; //0x2E
 			case PS2_KEY_KP_DIV   : *pOutChar = '/';  break; //0x2F
-			case PS2_KEY_APOS     : *pOutChar = '\''; break; //0X3A
-			case PS2_KEY_COMMA    : *pOutChar = ',';  break; //0X3B
-			case PS2_KEY_MINUS    : *pOutChar = '-';  break; //0X3C
-			case PS2_KEY_DOT      : *pOutChar = '.';  break; //0X3D
-			case PS2_KEY_DIV      : *pOutChar = '/';  break; //0X3E
+			case PS2_KEY_APOS     : *pOutChar = shift ? '\"' : '\''; break; //0X3A
+			case PS2_KEY_COMMA    : *pOutChar = shift ? '<' : ',';  break; //0X3B
+			case PS2_KEY_MINUS    : *pOutChar = shift ? '_' : '-';  break; //0X3C
+			case PS2_KEY_DOT      : *pOutChar = shift ? '>' : '.';  break; //0X3D
+			case PS2_KEY_DIV      : *pOutChar = shift ? '?' : '/';  break; //0X3E
 			/* Some Numeric keyboards have an '=' on right keypad */
 			case PS2_KEY_KP_EQUAL : *pOutChar = '=';  break; //0x3F
 			/* Single quote or back quote */
-			case PS2_KEY_SINGLE   : *pOutChar = '`';  break; //0X40
-			case PS2_KEY_SEMI     : *pOutChar = ';';  break; //0X5B
-			case PS2_KEY_BACK     : *pOutChar = '\\'; break; //0X5C
-			case PS2_KEY_OPEN_SQ  : *pOutChar = '[';  break; //0X5D
-			case PS2_KEY_CLOSE_SQ : *pOutChar = ']';  break; //0X5E
-			case PS2_KEY_EQUAL    : *pOutChar = '=';  break; //0X5F
+			case PS2_KEY_SINGLE   : *pOutChar = shift ? '~' : '`';  break; //0X40
+			case PS2_KEY_SEMI     : *pOutChar = shift ? ':' : ';';  break; //0X5B
+			case PS2_KEY_BACK     : *pOutChar = shift ? '|' : '\\'; break; //0X5C
+			case PS2_KEY_OPEN_SQ  : *pOutChar = shift ? '{' : '[';  break; //0X5D
+			case PS2_KEY_CLOSE_SQ : *pOutChar = shift ? '}' : ']';  break; //0X5E
+			case PS2_KEY_EQUAL    : *pOutChar = shift ? '+' : '=';  break; //0X5F
 			/* Some Numeric keypads have a comma key */
 			case PS2_KEY_KP_COMMA : *pOutChar = ',';  break; //0x60
 			default:
