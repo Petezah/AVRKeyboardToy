@@ -30,16 +30,60 @@ bool TranslateKey(uint16_t code, char *pOutChar)
 	// We need to check the status code, because we only care about keydown, not keyup
 	char c = ((char)code & 0xFF);
 	bool keydown = ((code & PS2_BREAK) == 0); // break flag means keyup
+	bool shift = ((code & PS2_SHIFT) != 0);
+	bool ctrl = ((code & PS2_CTRL) != 0);
+	bool alt = ((code & PS2_ALT) != 0);
 
-	if (c >= 0x20 && c <= 0x61) // regular printables
+	if (c >= 0x20 && c <= 0x60) // regular printables
 	{
 		printable = true;
-		if (c >= 0x41 && c <= 0x5A) // alpha
+		if (c >= PS2_KEY_A && c <= PS2_KEY_Z) // alpha
 		{
-			// TODO: handle shift key
+			if (!shift) // c will, by default, be shifted alpha; so handle non-shifted
+			{
+				char alpha = c - PS2_KEY_A;
+				*pOutChar = 'a' + alpha;
+			}
+			else
+			{
+				*pOutChar = c;
+			}
 		}
-
-		*pOutChar = c; // TODO
+		else if (c >= PS2_KEY_KP0 && c <= PS2_KEY_KP9)
+		{
+			char num = c - PS2_KEY_KP0;
+			*pOutChar = '0' + num;
+		}
+		else
+		{
+			switch (c)
+			{
+			case PS2_KEY_KP_DOT   : *pOutChar = '.';  break; //0x2A
+			case PS2_KEY_KP_ENTER : *pOutChar = '\n'; break; //0x2B
+			case PS2_KEY_KP_PLUS  : *pOutChar = '+';  break; //0x2C
+			case PS2_KEY_KP_MINUS : *pOutChar = '-';  break; //0x2D
+			case PS2_KEY_KP_TIMES : *pOutChar = '*';  break; //0x2E
+			case PS2_KEY_KP_DIV   : *pOutChar = '/';  break; //0x2F
+			case PS2_KEY_APOS     : *pOutChar = '\''; break; //0X3A
+			case PS2_KEY_COMMA    : *pOutChar = ',';  break; //0X3B
+			case PS2_KEY_MINUS    : *pOutChar = '-';  break; //0X3C
+			case PS2_KEY_DOT      : *pOutChar = '.';  break; //0X3D
+			case PS2_KEY_DIV      : *pOutChar = '/';  break; //0X3E
+			/* Some Numeric keyboards have an '=' on right keypad */
+			case PS2_KEY_KP_EQUAL : *pOutChar = '=';  break; //0x3F
+			/* Single quote or back quote */
+			case PS2_KEY_SINGLE   : *pOutChar = '`';  break; //0X40
+			case PS2_KEY_SEMI     : *pOutChar = ';';  break; //0X5B
+			case PS2_KEY_BACK     : *pOutChar = '\\'; break; //0X5C
+			case PS2_KEY_OPEN_SQ  : *pOutChar = '[';  break; //0X5D
+			case PS2_KEY_CLOSE_SQ : *pOutChar = ']';  break; //0X5E
+			case PS2_KEY_EQUAL    : *pOutChar = '=';  break; //0X5F
+			/* Some Numeric keypads have a comma key */
+			case PS2_KEY_KP_COMMA : *pOutChar = ',';  break; //0x60
+			default:
+				*pOutChar = c; // TODO?
+			}
+		}
 	}
 	else if (c == PS2_KEY_SPACE)
 	{
