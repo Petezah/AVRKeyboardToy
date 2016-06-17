@@ -19,3 +19,4 @@ notes.txt
 **/.vs
 **/Debug
 /Arduino/__vm
+*.s#*
