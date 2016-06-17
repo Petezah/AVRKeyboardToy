@@ -166,7 +166,7 @@ int eepos = 0;
 
 // Arduino-specific configuration
 // set this to the card select for your SD shield
-#define kSD_CS 10
+#define kSD_CS 7
 
 #define kSD_Fail  0
 #define kSD_OK    1
