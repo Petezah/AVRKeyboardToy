@@ -103,6 +103,9 @@
 // Enable input via PS/2 Keyboard
 #define ENABLE_KEYBOARD
 
+// Enable output via I2C Port Expander
+#define ENABLE_PORTEXPANDER
+
 // this turns on "autorun".  if there's FileIO, and a file "autorun.bas",
 // then it will load it and run it when starting up
 //#define ENABLE_AUTORUN 1
@@ -202,6 +205,12 @@ Adafruit_ST7735 display = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
 #define KEYBOARD_CLK 3
 
 PS2KeyAdvanced keyboard;
+#endif
+
+#ifdef ENABLE_PORTEXPANDER
+#include <Adafruit_MCP23017.h>
+
+Adafruit_MCP23017 mcp;
 #endif
 
 // set up our RAM buffer size for program and user input
@@ -359,6 +368,9 @@ static const unsigned char keywords[] PROGMEM = {
 #ifdef ENABLE_DISPLAY
   'S','C','O','L','O','R'+0x80,
 #endif
+#ifdef ENABLE_PORTEXPANDER
+  'X','W','R','I','T','E' + 0x80,
+#endif
   0
 };
 
@@ -393,6 +405,9 @@ enum {
 #ifdef ENABLE_DISPLAY
   KW_SCOLOR,
 #endif
+#ifdef ENABLE_PORTEXPANDER
+  KW_XWRITE,
+#endif
   KW_DEFAULT /* always the final one*/
 };
 
@@ -417,6 +432,9 @@ static const unsigned char func_tab[] PROGMEM = {
   'A','R','E','A','D'+0x80,
   'D','R','E','A','D'+0x80,
   'R','N','D'+0x80,
+#ifdef ENABLE_PORTEXPANDER
+  'X','R','E','A','D' + 0x80,
+#endif
   0
 };
 #define FUNC_PEEK    0
@@ -424,7 +442,8 @@ static const unsigned char func_tab[] PROGMEM = {
 #define FUNC_AREAD   2
 #define FUNC_DREAD   3
 #define FUNC_RND     4
-#define FUNC_UNKNOWN 5
+#define FUNC_XREAD   5
+#define FUNC_UNKNOWN 6
 
 static const unsigned char to_tab[] PROGMEM = {
   'T','O'+0x80,
@@ -869,6 +888,11 @@ static short int expr4(void)
     case FUNC_DREAD:
       pinMode( a, INPUT );
       return digitalRead( a );
+#ifdef ENABLE_PORTEXPANDER
+	case FUNC_XREAD:
+	  mcp.pinMode(a, INPUT);
+	  return mcp.digitalRead(a);
+#endif
 #endif
 
     case FUNC_RND:
@@ -1009,6 +1033,9 @@ void loop()
   unsigned char *newEnd;
   unsigned char linelen;
   boolean isDigital;
+#ifdef ENABLE_PORTEXPANDER
+  boolean isOnPortExpander = false;
+#endif
   boolean alsoWait = false;
   int val;
 
@@ -1297,6 +1324,12 @@ interperateAtTxtpos:
   case KW_DWRITE:  // DWRITE <pin>, HIGH|LOW
     isDigital = true;
     goto dwrite;
+#ifdef ENABLE_PORTEXPANDER
+  case KW_XWRITE:  // XWRITE <pin>, HIGH|LOW
+	isDigital = true;
+	isOnPortExpander = true;
+	goto dwrite;
+#endif
 
   case KW_RSEED:
     goto rseed;
@@ -1762,13 +1795,24 @@ dwrite:
       if(expression_error)
         goto qwhat;
     }
-    pinMode( pinNo, OUTPUT );
-    if( isDigital ) {
-      digitalWrite( pinNo, value );
-    } 
-    else {
-      analogWrite( pinNo, value );
-    }
+
+#ifdef ENABLE_PORTEXPANDER
+	if (isOnPortExpander)
+	{
+		mcp.pinMode(pinNo, OUTPUT);
+		mcp.digitalWrite(pinNo, value);
+	}
+	else
+#endif
+	{
+		pinMode(pinNo, OUTPUT);
+		if (isDigital) {
+			digitalWrite(pinNo, value);
+		}
+		else {
+			analogWrite(pinNo, value);
+		}
+	}
   }
   goto run_next_statement;
 #else
@@ -2023,6 +2067,10 @@ void setup()
 
 #ifdef ENABLE_KEYBOARD
   keyboard.begin(KEYBOARD_DATA, KEYBOARD_CLK);
+#endif
+
+#ifdef ENABLE_PORTEXPANDER
+  mcp.begin();
 #endif
 
   while( !Serial ); // for Leonardo
