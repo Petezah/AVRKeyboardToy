@@ -20,3 +20,4 @@ notes.txt
 **/Debug
 /Arduino/__vm
 *.s#*
+*.lck
