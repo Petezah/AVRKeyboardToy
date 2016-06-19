@@ -185,6 +185,11 @@ File fp;
 #define TFT_RST    9  
 #define TFT_DC     8
 
+#define TFT_EN     14
+
+//TEMP: When I get SD cooperating with TFT, I will move this
+#define TFT_SD_EN  15
+
 #define TFT_SCLK 13   
 #define TFT_MOSI 11   
 
@@ -211,6 +216,8 @@ PS2KeyAdvanced keyboard;
 #include <Adafruit_MCP23017.h>
 
 Adafruit_MCP23017 mcp;
+
+#define MCP_EN   16
 #endif
 
 // set up our RAM buffer size for program and user input
@@ -2059,6 +2066,13 @@ void setup()
   display.initR(INITR_BLACKTAB);  // You will need to do this in every sketch
   display.fillScreen(ST7735_BLACK);
 
+  pinMode(TFT_EN, OUTPUT);
+  digitalWrite(TFT_EN, LOW); // TFT is enabled LOW
+
+  // TODO: Disable SD for now
+  pinMode(TFT_SD_EN, OUTPUT);
+  digitalWrite(TFT_SD_EN, HIGH); // SD is enabled LOW
+
   //tft print function!
   display.setTextColor(ST7735_WHITE);
   display.setTextSize(0);
@@ -2071,6 +2085,9 @@ void setup()
 
 #ifdef ENABLE_PORTEXPANDER
   mcp.begin();
+
+  pinMode(MCP_EN, OUTPUT);
+  digitalWrite(MCP_EN, LOW); // expander is enabled LOW
 #endif
 
   while( !Serial ); // for Leonardo

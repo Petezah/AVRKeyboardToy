@@ -12975,7 +12975,6 @@ Used, eg, on the Arduino Pro/ Pro Mini boards.&lt;br&gt;
 <part name="GND1" library="supply1" deviceset="GND" device=""/>
 <part name="GND2" library="supply1" deviceset="GND" device=""/>
 <part name="GND3" library="supply1" deviceset="GND" device=""/>
-<part name="GND4" library="supply1" deviceset="GND" device=""/>
 <part name="GND5" library="supply1" deviceset="GND" device=""/>
 <part name="P+1" library="supply1" deviceset="+5V" device=""/>
 <part name="+3V5" library="supply1" deviceset="+3V3" device=""/>
@@ -12999,11 +12998,11 @@ Used, eg, on the Arduino Pro/ Pro Mini boards.&lt;br&gt;
 <part name="P+10" library="supply1" deviceset="VCC" device=""/>
 <part name="GND10" library="supply1" deviceset="GND" device=""/>
 <part name="GND11" library="supply1" deviceset="GND" device=""/>
-<part name="GND12" library="supply1" deviceset="GND" device=""/>
 <part name="GND13" library="supply1" deviceset="GND" device=""/>
 <part name="GND14" library="supply1" deviceset="GND" device=""/>
 <part name="GND15" library="supply1" deviceset="GND" device=""/>
 <part name="P+11" library="supply1" deviceset="VCC" device=""/>
+<part name="MISC" library="SparkFun-Connectors" deviceset="M04" device="PTH"/>
 </parts>
 <sheets>
 <sheet>
@@ -13043,9 +13042,8 @@ Used, eg, on the Arduino Pro/ Pro Mini boards.&lt;br&gt;
 <instance part="TFT" gate="-13" x="215.9" y="83.82"/>
 <instance part="J5" gate="A" x="68.58" y="22.86" rot="R90"/>
 <instance part="GND1" gate="1" x="58.42" y="7.62"/>
-<instance part="GND2" gate="1" x="7.62" y="-5.08"/>
+<instance part="GND2" gate="1" x="0" y="-5.08"/>
 <instance part="GND3" gate="1" x="30.48" y="71.12"/>
-<instance part="GND4" gate="1" x="193.04" y="78.74"/>
 <instance part="GND5" gate="1" x="147.32" y="170.18"/>
 <instance part="P+1" gate="1" x="147.32" y="190.5"/>
 <instance part="+3V5" gate="G$1" x="208.28" y="193.04"/>
@@ -13069,11 +13067,11 @@ Used, eg, on the Arduino Pro/ Pro Mini boards.&lt;br&gt;
 <instance part="P+10" gate="VCC" x="187.96" y="109.22"/>
 <instance part="GND10" gate="1" x="119.38" y="139.7"/>
 <instance part="GND11" gate="1" x="78.74" y="139.7"/>
-<instance part="GND12" gate="1" x="187.96" y="116.84"/>
 <instance part="GND13" gate="1" x="129.54" y="71.12"/>
 <instance part="GND14" gate="1" x="109.22" y="83.82"/>
 <instance part="GND15" gate="1" x="149.86" y="86.36"/>
 <instance part="P+11" gate="VCC" x="93.98" y="93.98"/>
+<instance part="MISC" gate="G$1" x="154.94" y="147.32"/>
 </instances>
 <busses>
 <bus name="GPB[0..7]">
@@ -13331,24 +13329,6 @@ Used, eg, on the Arduino Pro/ Pro Mini boards.&lt;br&gt;
 </net>
 <net name="GND" class="0">
 <segment>
-<pinref part="GND2" gate="1" pin="GND"/>
-<wire x1="7.62" y1="-2.54" x2="7.62" y2="2.54" width="0.1524" layer="91"/>
-<pinref part="IC2" gate="G$1" pin="VSS"/>
-<wire x1="7.62" y1="2.54" x2="15.24" y2="2.54" width="0.1524" layer="91"/>
-<wire x1="7.62" y1="2.54" x2="7.62" y2="7.62" width="0.1524" layer="91"/>
-<junction x="7.62" y="2.54"/>
-<pinref part="IC2" gate="G$1" pin="A0"/>
-<wire x1="7.62" y1="7.62" x2="7.62" y2="10.16" width="0.1524" layer="91"/>
-<wire x1="7.62" y1="10.16" x2="7.62" y2="12.7" width="0.1524" layer="91"/>
-<wire x1="7.62" y1="12.7" x2="15.24" y2="12.7" width="0.1524" layer="91"/>
-<pinref part="IC2" gate="G$1" pin="A1"/>
-<wire x1="7.62" y1="10.16" x2="15.24" y2="10.16" width="0.1524" layer="91"/>
-<junction x="7.62" y="10.16"/>
-<pinref part="IC2" gate="G$1" pin="A2"/>
-<wire x1="7.62" y1="7.62" x2="15.24" y2="7.62" width="0.1524" layer="91"/>
-<junction x="7.62" y="7.62"/>
-</segment>
-<segment>
 <pinref part="J5" gate="A" pin="1"/>
 <pinref part="GND1" gate="1" pin="GND"/>
 <wire x1="58.42" y1="20.32" x2="58.42" y2="12.7" width="0.1524" layer="91"/>
@@ -13367,12 +13347,6 @@ Used, eg, on the Arduino Pro/ Pro Mini boards.&lt;br&gt;
 <pinref part="U1" gate="A" pin="GND"/>
 <wire x1="30.48" y1="78.74" x2="40.64" y2="78.74" width="0.1524" layer="91"/>
 <junction x="30.48" y="78.74"/>
-</segment>
-<segment>
-<pinref part="GND4" gate="1" pin="GND"/>
-<wire x1="193.04" y1="81.28" x2="193.04" y2="83.82" width="0.1524" layer="91"/>
-<pinref part="TFT" gate="-13" pin="S"/>
-<wire x1="193.04" y1="83.82" x2="213.36" y2="83.82" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="IC1" gate="A1" pin="GND"/>
@@ -13449,13 +13423,18 @@ Used, eg, on the Arduino Pro/ Pro Mini boards.&lt;br&gt;
 <junction x="149.86" y="93.98"/>
 </segment>
 <segment>
-<pinref part="GND12" gate="1" pin="GND"/>
-<wire x1="187.96" y1="119.38" x2="187.96" y2="121.92" width="0.1524" layer="91"/>
-<wire x1="187.96" y1="121.92" x2="198.12" y2="121.92" width="0.1524" layer="91"/>
-<wire x1="198.12" y1="121.92" x2="198.12" y2="114.3" width="0.1524" layer="91"/>
-<pinref part="TFT" gate="-1" pin="S"/>
-<wire x1="198.12" y1="114.3" x2="213.36" y2="114.3" width="0.1524" layer="91"/>
-<label x="203.2" y="114.3" size="1.778" layer="95"/>
+<pinref part="IC2" gate="G$1" pin="A0"/>
+<wire x1="15.24" y1="12.7" x2="0" y2="12.7" width="0.1524" layer="91"/>
+<pinref part="GND2" gate="1" pin="GND"/>
+<wire x1="0" y1="12.7" x2="0" y2="10.16" width="0.1524" layer="91"/>
+<pinref part="IC2" gate="G$1" pin="A1"/>
+<wire x1="0" y1="10.16" x2="0" y2="7.62" width="0.1524" layer="91"/>
+<wire x1="0" y1="7.62" x2="0" y2="-2.54" width="0.1524" layer="91"/>
+<wire x1="15.24" y1="10.16" x2="0" y2="10.16" width="0.1524" layer="91"/>
+<junction x="0" y="10.16"/>
+<pinref part="IC2" gate="G$1" pin="A2"/>
+<wire x1="0" y1="7.62" x2="15.24" y2="7.62" width="0.1524" layer="91"/>
+<junction x="0" y="7.62"/>
 </segment>
 </net>
 <net name="SS" class="0">
@@ -13749,6 +13728,90 @@ Used, eg, on the Arduino Pro/ Pro Mini boards.&lt;br&gt;
 <pinref part="SP1" gate="S1" pin="+"/>
 <pinref part="R2" gate="G$1" pin="2"/>
 <wire x1="129.54" y1="99.06" x2="129.54" y2="96.52" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="TFT_EN" class="0">
+<segment>
+<pinref part="U1" gate="A" pin="PC0"/>
+<wire x1="83.82" y1="93.98" x2="76.2" y2="93.98" width="0.1524" layer="91"/>
+<label x="78.74" y="93.98" size="1.778" layer="95"/>
+</segment>
+<segment>
+<pinref part="TFT" gate="-1" pin="S"/>
+<wire x1="203.2" y1="114.3" x2="213.36" y2="114.3" width="0.1524" layer="91"/>
+<label x="203.2" y="114.3" size="1.778" layer="95"/>
+</segment>
+</net>
+<net name="SD_EN" class="0">
+<segment>
+<pinref part="U1" gate="A" pin="PC1"/>
+<wire x1="83.82" y1="91.44" x2="76.2" y2="91.44" width="0.1524" layer="91"/>
+<label x="78.74" y="91.44" size="1.778" layer="95"/>
+</segment>
+<segment>
+<pinref part="TFT" gate="-13" pin="S"/>
+<wire x1="203.2" y1="83.82" x2="213.36" y2="83.82" width="0.1524" layer="91"/>
+<label x="203.2" y="83.82" size="1.778" layer="95"/>
+</segment>
+</net>
+<net name="MCP_EN" class="0">
+<segment>
+<pinref part="U1" gate="A" pin="PC2"/>
+<wire x1="83.82" y1="88.9" x2="76.2" y2="88.9" width="0.1524" layer="91"/>
+<label x="78.74" y="88.9" size="1.778" layer="95"/>
+</segment>
+<segment>
+<pinref part="IC2" gate="G$1" pin="VSS"/>
+<wire x1="7.62" y1="2.54" x2="15.24" y2="2.54" width="0.1524" layer="91"/>
+<label x="2.54" y="2.54" size="1.778" layer="95"/>
+</segment>
+</net>
+<net name="AREF" class="0">
+<segment>
+<pinref part="U1" gate="A" pin="AREF"/>
+<wire x1="33.02" y1="109.22" x2="40.64" y2="109.22" width="0.1524" layer="91"/>
+<label x="33.02" y="109.22" size="1.778" layer="95"/>
+</segment>
+<segment>
+<pinref part="MISC" gate="G$1" pin="1"/>
+<wire x1="167.64" y1="144.78" x2="160.02" y2="144.78" width="0.1524" layer="91"/>
+<label x="162.56" y="144.78" size="1.778" layer="95"/>
+</segment>
+</net>
+<net name="PD2" class="0">
+<segment>
+<pinref part="U1" gate="A" pin="PD2"/>
+<wire x1="83.82" y1="111.76" x2="76.2" y2="111.76" width="0.1524" layer="91"/>
+<label x="81.28" y="111.76" size="1.778" layer="95"/>
+</segment>
+<segment>
+<pinref part="MISC" gate="G$1" pin="2"/>
+<wire x1="167.64" y1="147.32" x2="160.02" y2="147.32" width="0.1524" layer="91"/>
+<label x="162.56" y="147.32" size="1.778" layer="95"/>
+</segment>
+</net>
+<net name="PD6" class="0">
+<segment>
+<pinref part="U1" gate="A" pin="PD6"/>
+<wire x1="83.82" y1="101.6" x2="76.2" y2="101.6" width="0.1524" layer="91"/>
+<label x="81.28" y="101.6" size="1.778" layer="95"/>
+</segment>
+<segment>
+<pinref part="MISC" gate="G$1" pin="3"/>
+<wire x1="167.64" y1="149.86" x2="160.02" y2="149.86" width="0.1524" layer="91"/>
+<label x="162.56" y="149.86" size="1.778" layer="95"/>
+</segment>
+</net>
+<net name="PC3" class="0">
+<segment>
+<pinref part="U1" gate="A" pin="PC3"/>
+<wire x1="83.82" y1="86.36" x2="76.2" y2="86.36" width="0.1524" layer="91"/>
+<label x="78.74" y="86.36" size="1.778" layer="95"/>
+</segment>
+<segment>
+<pinref part="MISC" gate="G$1" pin="4"/>
+<wire x1="167.64" y1="152.4" x2="160.02" y2="152.4" width="0.1524" layer="91"/>
+<label x="162.56" y="152.4" size="1.778" layer="95"/>
 </segment>
 </net>
 </nets>
