@@ -21,3 +21,4 @@ notes.txt
 /Arduino/__vm
 *.s#*
 *.lck
+*.b#*
