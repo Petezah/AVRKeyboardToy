@@ -195,10 +195,21 @@ File fp;
 
 #define CHAR_WIDTH 6
 #define CHAR_HEIGHT 8
-#define DISPLAY_WIDTH 160
+#define DISPLAY_WIDTH 128
 #define DISPLAY_HEIGHT 160
 
+#define NUM_CHAR_COLUMNS (DISPLAY_WIDTH/CHAR_WIDTH)
+#define NUM_CHAR_ROWS    (DISPLAY_HEIGHT/CHAR_HEIGHT)
+
 Adafruit_ST7735 display = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
+
+uint16_t display_bgcolor = ST7735_BLUE;
+uint16_t display_fgcolor = ST7735_WHITE;
+
+char displayBuffer[NUM_CHAR_ROWS*NUM_CHAR_COLUMNS];
+#define kRamDisplay (sizeof(displayBuffer))
+#else
+#define kRamDisplay (0)
 #endif
 
 #ifdef ENABLE_KEYBOARD
@@ -234,7 +245,7 @@ Adafruit_MCP23017 mcp;
 #define kRamTones (0)
 #endif
 #endif /* ARDUINO */
-#define kRamSize  (RAMEND - 1160 - kRamFileIO - kRamTones) 
+#define kRamSize  (RAMEND - 1160 - kRamFileIO - kRamTones - kRamDisplay) 
 
 #ifndef ARDUINO
 // Not arduino setup
@@ -309,6 +320,10 @@ static unsigned char outStream = kStreamSerial;
 #define DQUOTE  '\"'
 #define CTRLC	0x03
 #define CTRLH	0x08
+#define CTRLI   0x09
+#define CTRLJ   0x0A
+#define CTRLK   0x0B
+#define CTRLL	0x0C
 #define CTRLS	0x13
 #define CTRLX	0x18
 #define DELETE  0x7F
@@ -373,7 +388,8 @@ static const unsigned char keywords[] PROGMEM = {
 #endif
 #endif
 #ifdef ENABLE_DISPLAY
-  'S','C','O','L','O','R'+0x80,
+  'B','G','C','O','L','O','R' + 0x80,
+  'F','G','C','O','L','O','R' + 0x80,
 #endif
 #ifdef ENABLE_PORTEXPANDER
   'X','W','R','I','T','E' + 0x80,
@@ -410,7 +426,8 @@ enum {
 #endif
 #endif
 #ifdef ENABLE_DISPLAY
-  KW_SCOLOR,
+  KW_BGCOLOR,
+  KW_FGCOLOR,
 #endif
 #ifdef ENABLE_PORTEXPANDER
   KW_XWRITE,
@@ -745,7 +762,7 @@ static void getln(char prompt)
 		  if (xpos > 0)
 		  {
 			  xpos -= CHAR_WIDTH;
-			  display.fillRect(xpos, ypos, CHAR_WIDTH * 2, CHAR_HEIGHT, ST7735_BLACK); // Erase last char and cursor
+			  display.fillRect(xpos, ypos, CHAR_WIDTH * 2, CHAR_HEIGHT, display_bgcolor); // Erase last char and cursor
 			  display.setCursor(xpos, ypos);
 		  }
 	  }
@@ -1040,6 +1057,9 @@ void loop()
   unsigned char *newEnd;
   unsigned char linelen;
   boolean isDigital;
+#ifdef ENABLE_DISPLAY
+  boolean isBgColor;
+#endif
 #ifdef ENABLE_PORTEXPANDER
   boolean isOnPortExpander = false;
 #endif
@@ -1366,7 +1386,11 @@ interperateAtTxtpos:
 #endif
 
 #ifdef ENABLE_DISPLAY
-  case KW_SCOLOR:
+  case KW_BGCOLOR:
+	  isBgColor = true;
+	  goto scolor;
+  case KW_FGCOLOR:
+	  isBgColor = false;
 	  goto scolor;
 #endif
 
@@ -1990,17 +2014,50 @@ tonegen:
   scolor:
   {
 	  // SCOLOR color
-	  short int color;
+	  short int colorIdx;
 
 	  //Get the color
 	  expression_error = 0;
-	  color = expression();
+	  colorIdx = expression();
 	  if (expression_error)
 		  goto qwhat;
 
 	  ignore_blanks();
 
-	  display.setTextColor(ST7735_WHITE, color);
+	  // C64 style color table
+	  const char numColors = 16;
+	  uint8_t colors[numColors * 3] =
+	  {
+		  0x00, 0x00, 0x00, //Black
+		  0xFF, 0xFF, 0xFF, //White
+		  0x88, 0x00, 0x00, //Red
+		  0xAA, 0xFF, 0xEE, //Cyan
+		  0xCC, 0x44, 0xCC, //Violet
+		  0x00, 0xCC, 0x55, //Green
+		  0x00, 0x00, 0xAA, //Blue
+		  0xEE, 0xEE, 0x77, //Yellow
+		  0xDD, 0x88, 0x55, //Orange
+		  0x66, 0x44, 0x00, //Brown
+		  0xFF, 0x77, 0x77, //Lightred
+		  0x33, 0x33, 0x33, //DarkGray
+		  0x77, 0x77, 0x77, //MedGray
+		  0xAA, 0xFF, 0x66, //Lightgreen
+		  0x00, 0x88, 0xFF, //Lightblue
+		  0xBB, 0xBB, 0xBB  //Lightgray
+	  };
+	  uint8_t* pColor = colors + ((colorIdx % numColors) * 3);
+	  uint16_t color = display.Color565(pColor[0], pColor[1], pColor[2]);
+
+	  if (isBgColor)
+	  {
+		  display_bgcolor = color;
+	  }
+	  else
+	  {
+		  display_fgcolor = color;
+	  }
+
+	  display.setTextColor(display_fgcolor, display_bgcolor);
 	  goto run_next_statement;
   }
 #endif /* ENABLE_DISPLAY */
@@ -2064,7 +2121,7 @@ void setup()
 
 #ifdef ENABLE_DISPLAY
   display.initR(INITR_BLACKTAB);  // You will need to do this in every sketch
-  display.fillScreen(ST7735_BLACK);
+  display.fillScreen(ST7735_BLUE);
 
   pinMode(TFT_EN, OUTPUT);
   digitalWrite(TFT_EN, LOW); // TFT is enabled LOW
@@ -2074,7 +2131,7 @@ void setup()
   digitalWrite(TFT_SD_EN, HIGH); // SD is enabled LOW
 
   //tft print function!
-  display.setTextColor(ST7735_WHITE);
+  display.setTextColor(display_fgcolor);
   display.setTextSize(0);
   display.setCursor(0, 0);
 #endif
@@ -2094,7 +2151,7 @@ void setup()
   
   Serial.println( sentinel );
 #ifdef ENABLE_DISPLAY
-  display.println(sentinel);
+  //display.println(sentinel);
 #endif
   printmsg(initmsg);
 
@@ -2206,7 +2263,7 @@ static uint16_t inchar()
 
 	  int16_t xpos = display.getCursorX();
 	  int16_t ypos = display.getCursorY();
-	  display.fillRect(xpos, ypos, CHAR_WIDTH, CHAR_HEIGHT, cursorVisible ? ST7735_WHITE : ST7735_BLACK);
+	  display.fillRect(xpos, ypos, CHAR_WIDTH, CHAR_HEIGHT, cursorVisible ? display_fgcolor : display_bgcolor);
 #endif
     }
   }
@@ -2266,10 +2323,10 @@ static void outchar(unsigned char c, bool suppressDisplayOut)
 		int16_t xpos = display.getCursorX();
 		if (xpos == 0)
 		{
-			display.fillRect(0, ypos, DISPLAY_WIDTH, CHAR_HEIGHT, ST7735_BLACK);
+			display.fillRect(0, ypos, DISPLAY_WIDTH, CHAR_HEIGHT, display_bgcolor);
 		}
 
-		display.fillRect(xpos, ypos, CHAR_WIDTH, CHAR_HEIGHT, ST7735_BLACK); // Erase the cursor
+		display.fillRect(xpos, ypos, CHAR_WIDTH, CHAR_HEIGHT, display_bgcolor); // Erase the cursor
 		display.write(c);
 	}
 #endif
