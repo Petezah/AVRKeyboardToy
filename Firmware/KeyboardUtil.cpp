@@ -51,7 +51,7 @@ bool TranslateKey(uint16_t code, char *pOutChar)
 		}
 		else if (c >= PS2_KEY_0 && c <= PS2_KEY_9 && shift)
 		{
-			char *pSpecial = ")!@#$%^&*(";
+			const char *pSpecial = ")!@#$%^&*(";
 			char idx = c - PS2_KEY_0;
 			*pOutChar = pSpecial[idx];
 		}

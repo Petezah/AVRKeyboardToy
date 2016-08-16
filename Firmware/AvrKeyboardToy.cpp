@@ -268,7 +268,7 @@ void cmd_Files( void );
 
 ////////////////////
 
-#ifndef boolean 
+#if !defined(boolean) && !defined(__cplusplus)
 #define boolean int
 #define true 1
 #define false 0
