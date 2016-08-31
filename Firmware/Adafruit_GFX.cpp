@@ -32,7 +32,8 @@ POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "Adafruit_GFX.h"
-#include "glcdfont.c"
+//#include "glcdfont.c"
+#include "8x8font.h"
 #ifdef __AVR__
  #include <avr/pgmspace.h>
 #elif defined(ESP8266)

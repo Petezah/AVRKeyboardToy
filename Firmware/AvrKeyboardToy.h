@@ -10,7 +10,7 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_ST7735.h>
 
-#define CHAR_WIDTH 6
+#define CHAR_WIDTH 8
 #define CHAR_HEIGHT 8
 #define DISPLAY_WIDTH 128
 #define DISPLAY_HEIGHT 160

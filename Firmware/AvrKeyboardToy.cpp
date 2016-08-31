@@ -41,12 +41,12 @@ void AvrKeyboardToy::Init()
 	m_display.initR(INITR_BLACKTAB);  // You will need to do this in every sketch
     RefreshDisplay(true);
 
-    static char c = 0x20;
+    static char c = 0;//0x20;
     char *pC = m_displayBuffer;
     for (unsigned int i = 0; i<DISPLAY_BUF_SIZE; ++i, ++pC)
     {
         *pC = c++;
-        if(c > 0x7E) c = 0x20;
+        //if(c > 0x7E) c = 0x20;
     }
 }
 
