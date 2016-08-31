@@ -30,7 +30,10 @@ LDFLAGS += ${shell pkg-config --libs simavr}
 
 include Makefile.opengl
 
-all: obj ${target}
+all: obj ${target} symlink
+
+symlink: ${board}
+	ln -s ${PWD}/${board} ../${target}
 
 include Makefile.common
 
@@ -45,4 +48,4 @@ ${target}: ${board}
 	@echo $@ done
 
 clean: clean-${OBJ}
-	rm -rf *.a ${target} *.vcd .*.swo .*.swp .*.swm .*.swn
+	rm -rf *.a ${target} *.vcd .*.swo .*.swp .*.swm .*.swn ../${target}

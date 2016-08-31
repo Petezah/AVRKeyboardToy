@@ -138,13 +138,16 @@ ALL_ASFLAGS = -mmcu=$(MCU) -I. -x assembler-with-cpp $(ASFLAGS)
 # Default target.
 all: build
 
-build: elf hex eep elfsize
+build: elf hex eep symlink elfsize
 
 elfsize: elf
 	$(SIZE) $(TARGET).elf
 
 hexsize: hex
 	$(SIZE) $(TARGET).hex
+
+symlink: hex
+	ln -s $(PWD)/$(TARGET).hex ../$(TARGET).hex
 
 elf: $(TARGET).elf
 hex: $(TARGET).hex
@@ -221,7 +224,7 @@ $(TARGET).elf: $(OBJ)
 
 # Target: clean project.
 clean:
-	$(REMOVE) $(TARGET).hex $(TARGET).eep $(TARGET).cof $(TARGET).elf \
+	$(REMOVE) $(TARGET).hex $(TARGET).eep $(TARGET).cof $(TARGET).elf ../$(TARGET).hex \
 	$(TARGET).map $(TARGET).sym $(TARGET).lss \
 	$(OBJ) $(LST) $(SRC:.c=.s) $(SRC:.c=.d) $(CXXSRC:.cpp=.s) $(CXXSRC:.cpp=.d)
 
