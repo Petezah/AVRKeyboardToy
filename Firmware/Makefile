@@ -147,7 +147,7 @@ hexsize: hex
 	$(SIZE) $(TARGET).hex
 
 symlink: hex
-	ln -s $(PWD)/$(TARGET).hex ../$(TARGET).hex
+	ln -s -f $(PWD)/$(TARGET).hex ../$(TARGET).hex
 
 elf: $(TARGET).elf
 hex: $(TARGET).hex

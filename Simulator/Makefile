@@ -33,7 +33,7 @@ include Makefile.opengl
 all: obj ${target} symlink
 
 symlink: ${board}
-	ln -s ${PWD}/${board} ../${target}
+	ln -s -f ${PWD}/${board} ../${target}
 
 include Makefile.common
 
