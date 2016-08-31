@@ -1,0 +1,14 @@
+simkeytoy
+
+(C) 2016 Peter Dunshee <peter@petezah.com>
+
+This simulator derives from a sample in simavr, but implements
+the use of a ST7735 TFT driver on top of simavr in addition to implementing
+a stdin/out UART interface to interact with the AvrKeyboardToy. It 
+runs identically in real life. 
+
+The part has been tested using only the supplied driver.  Also, it implements only
+the features of the TFT driver which were needed at the time.
+
+The project requires simavr to build.
+See https://github.com/buserror/simavr

@@ -24,3 +24,4 @@ notes.txt
 *.b#*
 *.log
 **/.vscode
+/Simulator/obj-x86_64-linux-gnu
