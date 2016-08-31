@@ -138,11 +138,15 @@ class Adafruit_ST7735 : public Adafruit_GFX {
            drawPixel(int16_t x, int16_t y, uint16_t color),
            drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color),
            drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color),
+           drawFastChar(int16_t x, int16_t y, unsigned char c, uint16_t color,
+             uint16_t bg),
            fillRect(int16_t x, int16_t y, int16_t w, int16_t h,
              uint16_t color),
            setRotation(uint8_t r),
            invertDisplay(boolean i);
   uint16_t Color565(uint8_t r, uint8_t g, uint8_t b);
+
+  // Gains speed by completely overwriting the contents of the block beneath the character
 
   /* These are not for current use, 8-bit protocol only!
   uint8_t  readdata(void),

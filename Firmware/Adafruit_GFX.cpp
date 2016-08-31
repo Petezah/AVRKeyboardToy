@@ -856,6 +856,10 @@ void Adafruit_GFX::invertDisplay(boolean i) {
   // Do nothing, must be subclassed if supported by hardware
 }
 
+const unsigned char* Adafruit_GFX::getFont() {
+  return font;
+}
+
 /***************************************************************************/
 // code for the GFX button UI element
 

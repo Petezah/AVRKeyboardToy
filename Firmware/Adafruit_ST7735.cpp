@@ -501,7 +501,49 @@ void Adafruit_ST7735::drawFastHLine(int16_t x, int16_t y, int16_t w,
 #endif
 }
 
+void Adafruit_ST7735::drawFastChar(int16_t x, int16_t y, unsigned char c, uint16_t color, uint16_t bg) {
 
+  // Rudimentary clipping
+  if((x >= _width)            || // Clip right
+     (y >= _height)           || // Clip bottom
+     ((x + 6 - 1) < 0)        || // Clip left
+     ((y + 8 - 1) < 0))          // Clip top
+     return;
+  setAddrWindow(x, y, x+8, y+6); //6x8 square
+
+  if(!_cp437 && (c >= 176)) c++; // Handle 'classic' charset behavior
+
+  uint8_t hi = color >> 8, lo = color;
+  uint8_t bghi = bg >> 8, bglo = bg;
+
+#if defined (SPI_HAS_TRANSACTION)
+  SPI.beginTransaction(mySPISettings);
+#endif
+  *rsport |=  rspinmask;
+  *csport &= ~cspinmask;
+
+  for(int8_t i=0; i<6; i++ ) {
+    uint8_t line;
+    if(i < 5) line = pgm_read_byte(getFont()+(c*5)+i);
+    else      line = 0x0;
+    for(int8_t j=0; j<8; j++, line >>= 1) {
+      if(line & 0x1) {
+        // Draw FG pixel
+        spiwrite(hi);
+        spiwrite(lo);
+      } else {
+        // Draw BG pixel
+        spiwrite(bghi);
+        spiwrite(bglo);
+      }
+    }
+  }
+
+  *csport |= cspinmask;
+#if defined (SPI_HAS_TRANSACTION)
+  SPI.endTransaction();
+#endif
+}
 
 void Adafruit_ST7735::fillScreen(uint16_t color) {
   fillRect(0, 0,  _width, _height, color);

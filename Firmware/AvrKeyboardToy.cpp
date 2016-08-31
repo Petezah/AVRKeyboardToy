@@ -40,6 +40,14 @@ void AvrKeyboardToy::Init()
     memset(m_displayBuffer, ' ', sizeof(m_displayBuffer));
 	m_display.initR(INITR_BLACKTAB);  // You will need to do this in every sketch
     RefreshDisplay(true);
+
+    static char c = 0x20;
+    char *pC = m_displayBuffer;
+    for (unsigned int i = 0; i<DISPLAY_BUF_SIZE; ++i, ++pC)
+    {
+        *pC = c++;
+        if(c > 0x7E) c = 0x20;
+    }
 }
 
 void AvrKeyboardToy::Update()
@@ -50,18 +58,7 @@ void AvrKeyboardToy::Update()
     //RefreshDisplay();
 
     // Test
-    // static char c = 0x20;
-    // *m_displayBuffer = c++;
-    // char *pC = m_displayBuffer;
-    // for (unsigned int i = 0; i<DISPLAY_BUF_SIZE; ++i, ++pC)
-    // {
-    //     //m_display.setCursor(0, 0);
-    //     m_display.print(c++);
-
-    //     *pC = c++;
-    //     if(c > 0x7E) c = 0x20;
-    // }
-    // RefreshDisplay();
+    RefreshDisplay(false);
 }
 
 void AvrKeyboardToy::UpdateInterpreter()
@@ -97,8 +94,9 @@ void AvrKeyboardToy::RefreshDisplay(bool clearOnly)
         unsigned int xoffset = 0;
         for (unsigned int x=0; x<NUM_CHAR_COLUMNS; ++x, ++pC, xoffset += CHAR_WIDTH)
         {
-            m_display.setCursor(xoffset, yoffset);
-            m_display.print(*pC);
+            //m_display.setCursor(xoffset, yoffset);
+            //m_display.print(*pC);
+            m_display.drawFastChar(xoffset, yoffset, *pC, ST7735_WHITE, ST7735_BLUE);
         }
     }
 }

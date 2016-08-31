@@ -116,6 +116,8 @@ class Adafruit_GFX : public Print {
     _cp437; // If set, use correct CP437 charset (default is off)
   GFXfont
     *gfxFont;
+
+  const unsigned char* getFont();
 };
 
 class Adafruit_GFX_Button {
