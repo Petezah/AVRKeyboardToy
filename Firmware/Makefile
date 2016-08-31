@@ -50,11 +50,11 @@ TARGET = AvrKeyboardToy
 ARDUINO = ./arduino
 SRC = $(ARDUINO)/wiring.c $(ARDUINO)/wiring_digital.c $(ARDUINO)/wiring_analog.c \
 	$(ARDUINO)/hooks.c $(ARDUINO)/WInterrupts.c $(ARDUINO)/utility/twi.c
-CXXSRC = $(TARGET).cpp KeyboardUtil.cpp \
+CXXSRC = $(TARGET).cpp main.cpp TinyBasicPlus.cpp KeyboardUtil.cpp \
 	Adafruit_GFX.cpp Adafruit_ST7735.cpp \
 	Adafruit_MCP23017.cpp \
 	PS2KeyAdvanced.cpp \
-	$(ARDUINO)/main.cpp $(ARDUINO)/abi.cpp \
+	$(ARDUINO)/abi.cpp \
 	$(ARDUINO)/WMath.cpp $(ARDUINO)/Print.cpp $(ARDUINO)/Tone.cpp \
 	$(ARDUINO)/HardwareSerial.cpp $(ARDUINO)/HardwareSerial0.cpp \
 	$(ARDUINO)/SPI.cpp $(ARDUINO)/Wire.cpp 
@@ -138,7 +138,13 @@ ALL_ASFLAGS = -mmcu=$(MCU) -I. -x assembler-with-cpp $(ASFLAGS)
 # Default target.
 all: build
 
-build: elf hex eep
+build: elf hex eep elfsize
+
+elfsize: elf
+	$(SIZE) $(TARGET).elf
+
+hexsize: hex
+	$(SIZE) $(TARGET).hex
 
 elf: $(TARGET).elf
 hex: $(TARGET).hex
