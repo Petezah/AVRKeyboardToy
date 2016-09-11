@@ -45,7 +45,7 @@
 #
 # $Id$
 
-PORT = /dev/tty.usbserial*
+PORT = COM3
 TARGET = AvrKeyboardToy
 ARDUINO = ./arduino
 SRC = $(ARDUINO)/wiring.c $(ARDUINO)/wiring_digital.c $(ARDUINO)/wiring_analog.c \
@@ -86,8 +86,8 @@ CXXINCS = -I$(ARDUINO)
 # gnu89 - c89 plus GCC extensions
 # c99   - ISO C99 standard (not yet fully implemented)
 # gnu99 - c99 plus GCC extensions
-CSTANDARD = -std=gnu11 #-std=gnu99
-CXXSTANDARD = -std=gnu++11
+CSTANDARD = -std=gnu99
+CXXSTANDARD = -std=gnu++98
 CDEBUG = -g$(DEBUG)
 CWARN = -Wall # -Wstrict-prototypes
 CTUNING = -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums
@@ -105,7 +105,7 @@ CXXFLAGS = $(CXXSTANDARD) $(CDEFS) $(CINCS) -O$(OPT) $(CXXFIXSTATICS) $(CXXSIZEO
 LDFLAGS = $(LDSIZEOPT)
 
 # Programming support using avrdude. Settings and variables.
-AVRDUDE_PROGRAMMER = stk500
+AVRDUDE_PROGRAMMER = arduino
 AVRDUDE_PORT = $(PORT)
 AVRDUDE_WRITE_FLASH = -U flash:w:$(TARGET).hex
 AVRDUDE_FLAGS = -F -p $(MCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER) \
@@ -138,7 +138,9 @@ ALL_ASFLAGS = -mmcu=$(MCU) -I. -x assembler-with-cpp $(ASFLAGS)
 # Default target.
 all: build
 
-build: elf hex eep symlink elfsize
+# Use the top one if you need the eep file
+#build: elf hex eep symlink elfsize
+build: elf hex symlink elfsize
 
 elfsize: elf
 	$(SIZE) $(TARGET).elf
@@ -147,7 +149,7 @@ hexsize: hex
 	$(SIZE) $(TARGET).hex
 
 symlink: hex
-	ln -s -f $(PWD)/$(TARGET).hex ../$(TARGET).hex
+	ln -s -f $(shell pwd)/$(TARGET).hex ../$(TARGET).hex
 
 elf: $(TARGET).elf
 hex: $(TARGET).hex
@@ -156,7 +158,7 @@ lss: $(TARGET).lss
 sym: $(TARGET).sym
 
 # Program the device.  
-upload: $(TARGET).hex $(TARGET).eep
+upload: $(TARGET).hex # $(TARGET).eep
 	$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH)
 
 
