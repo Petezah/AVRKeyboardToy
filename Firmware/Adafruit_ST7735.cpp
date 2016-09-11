@@ -523,9 +523,10 @@ void Adafruit_ST7735::drawFastChar(int16_t x, int16_t y, unsigned char c, uint16
   *csport &= ~cspinmask;
 
   for(int8_t i=0; i<8; i++ ) {
-    uint8_t line;
-    if(i < 7) line = pgm_read_byte(getFont()+(c*8)+i);
-    else      line = 0x0;
+    // We do not add an artificial blank line;
+    // our 8x8 font already has one built-in 
+    // where necessary
+    uint8_t line = pgm_read_byte(getFont()+(c*8)+i);
     for(int8_t j=0; j<8; j++, line <<= 1) {
       if(line & 0x80) {
         // Draw FG pixel

@@ -32,6 +32,7 @@ as well as Adafruit raw 1.8" TFT display
 #endif
 
 #include <Adafruit_GFX.h>
+#include <IDisplay.h>
 
 #if defined(__SAM3X8E__)
   #include <include/pio.h>
@@ -123,7 +124,15 @@ as well as Adafruit raw 1.8" TFT display
 #define ST7735_WHITE   0xFFFF
 
 
-class Adafruit_ST7735 : public Adafruit_GFX {
+#define CHAR_WIDTH 8
+#define CHAR_HEIGHT 8
+#define DISPLAY_WIDTH ST7735_TFTWIDTH
+#define DISPLAY_HEIGHT ST7735_TFTHEIGHT_18
+
+#define NUM_CHAR_COLUMNS (DISPLAY_WIDTH/CHAR_WIDTH)
+#define NUM_CHAR_ROWS    (DISPLAY_HEIGHT/CHAR_HEIGHT)
+
+class Adafruit_ST7735 : public Adafruit_GFX, public IDisplay {
 
  public:
 
@@ -138,13 +147,14 @@ class Adafruit_ST7735 : public Adafruit_GFX {
            drawPixel(int16_t x, int16_t y, uint16_t color),
            drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color),
            drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color),
-           drawFastChar(int16_t x, int16_t y, unsigned char c, uint16_t color,
-             uint16_t bg),
            fillRect(int16_t x, int16_t y, int16_t w, int16_t h,
              uint16_t color),
            setRotation(uint8_t r),
            invertDisplay(boolean i);
   uint16_t Color565(uint8_t r, uint8_t g, uint8_t b);
+
+  virtual void drawFastChar(int16_t x, int16_t y, unsigned char c, uint16_t color,
+             uint16_t bg);
 
   // Gains speed by completely overwriting the contents of the block beneath the character
 

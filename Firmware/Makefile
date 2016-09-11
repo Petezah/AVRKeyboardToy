@@ -50,7 +50,7 @@ TARGET = AvrKeyboardToy
 ARDUINO = ./arduino
 SRC = $(ARDUINO)/wiring.c $(ARDUINO)/wiring_digital.c $(ARDUINO)/wiring_analog.c \
 	$(ARDUINO)/hooks.c $(ARDUINO)/WInterrupts.c $(ARDUINO)/utility/twi.c
-CXXSRC = $(TARGET).cpp main.cpp TinyBasicPlus.cpp KeyboardUtil.cpp \
+CXXSRC = $(TARGET).cpp main.cpp TinyBasicPlus.cpp KeyboardUtil.cpp DisplayBuffer.cpp \
 	Adafruit_GFX.cpp Adafruit_ST7735.cpp \
 	Adafruit_MCP23017.cpp \
 	PS2KeyAdvanced.cpp \

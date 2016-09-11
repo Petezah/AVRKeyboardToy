@@ -9,15 +9,7 @@
 
 #include <Adafruit_GFX.h>
 #include <Adafruit_ST7735.h>
-
-#define CHAR_WIDTH 8
-#define CHAR_HEIGHT 8
-#define DISPLAY_WIDTH 128
-#define DISPLAY_HEIGHT 160
-
-#define NUM_CHAR_COLUMNS (DISPLAY_WIDTH/CHAR_WIDTH)
-#define NUM_CHAR_ROWS    (DISPLAY_HEIGHT/CHAR_HEIGHT)
-#define DISPLAY_BUF_SIZE (NUM_CHAR_ROWS*NUM_CHAR_COLUMNS)
+#include "DisplayBuffer.h"
 
 class AvrKeyboardToy
 {

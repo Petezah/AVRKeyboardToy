@@ -21,14 +21,13 @@
 #define TFT_MOSI 11   
 ////
     
-char m_displayBuffer[DISPLAY_BUF_SIZE];
 Adafruit_ST7735 m_display(TFT_CS, TFT_DC, TFT_RST);
+DisplayBuffer m_displayBuffer(&m_display);
 
 AvrKeyboardToy::AvrKeyboardToy() :
     m_displayBGcolor(ST7735_BLUE), m_displayFGcolor(ST7735_WHITE),
     m_cursorX(0), m_cursorY(0), m_cursorVisible(true), m_lastCursorMillis(0)
 {
-
 }
 
 void AvrKeyboardToy::Init()
@@ -37,17 +36,20 @@ void AvrKeyboardToy::Init()
     init();
 
     // TODO: our own init
-    memset(m_displayBuffer, ' ', sizeof(m_displayBuffer));
-	m_display.initR(INITR_BLACKTAB);  // You will need to do this in every sketch
-    RefreshDisplay(true);
+    m_display.initR(INITR_BLACKTAB);  // You will need to do this in every sketch
 
-    static char c = 0;//0x20;
-    char *pC = m_displayBuffer;
-    for (unsigned int i = 0; i<DISPLAY_BUF_SIZE; ++i, ++pC)
+    // Power on the display
+    pinMode(TFT_EN, OUTPUT);
+    digitalWrite(TFT_EN, LOW); // TFT is enabled LOW
+
+    // TEST
+    while(!m_displayBuffer.DisplayNeedsRefresh())// fill until refresh is triggered
     {
-        *pC = c++;
-        //if(c > 0x7E) c = 0x20;
+        static char c = 0;
+        m_displayBuffer.write(c++, true);
     }
+
+    RefreshDisplay(false);
 }
 
 void AvrKeyboardToy::Update()
@@ -55,10 +57,7 @@ void AvrKeyboardToy::Update()
 	UpdateInterpreter();
     UpdateSerial();
     UpdateCursor();
-    //RefreshDisplay();
-
-    // Test
-    RefreshDisplay(false);
+    //RefreshDisplay(false);
 }
 
 void AvrKeyboardToy::UpdateInterpreter()
@@ -79,15 +78,20 @@ void AvrKeyboardToy::UpdateCursor()
 	  m_lastCursorMillis = cursorMillis;
 	  m_cursorVisible = m_cursorVisible ? false : true;
 	}
-	m_display.fillRect(m_cursorX, m_cursorY, CHAR_WIDTH, CHAR_HEIGHT, m_cursorVisible ? m_displayFGcolor : m_displayBGcolor);
+    char* pC = m_displayBuffer.GetBuffer() + m_cursorY * NUM_CHAR_COLUMNS + m_cursorX;
+    m_display.drawFastChar(
+        m_cursorX*CHAR_WIDTH, m_cursorY*CHAR_HEIGHT, *pC, 
+        m_cursorVisible ? m_displayBGcolor : m_displayFGcolor,
+        m_cursorVisible ? m_displayFGcolor : m_displayBGcolor
+        );
 }
 
 void AvrKeyboardToy::RefreshDisplay(bool clearOnly)
 {
-    m_display.fillScreen(ST7735_BLUE);
+    //m_display.fillScreen(ST7735_BLUE);
     if (clearOnly) return;
 
-    char* pC = m_displayBuffer;
+    char* pC = m_displayBuffer.GetBuffer();
     unsigned int yoffset = 0;
     for (unsigned int y=0; y<NUM_CHAR_ROWS; ++y, yoffset += CHAR_HEIGHT)
     {
