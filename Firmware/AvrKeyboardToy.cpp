@@ -37,6 +37,7 @@ void AvrKeyboardToy::Init()
 
     // TODO: our own init
     m_display.initR(INITR_BLACKTAB);  // You will need to do this in every sketch
+    m_display.setRotation(2); // 180* rotation
 
     // Power on the display
     pinMode(TFT_EN, OUTPUT);

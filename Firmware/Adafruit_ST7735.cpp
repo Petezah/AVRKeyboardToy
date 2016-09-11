@@ -509,7 +509,7 @@ void Adafruit_ST7735::drawFastChar(int16_t x, int16_t y, unsigned char c, uint16
      ((x + 8 - 1) < 0)        || // Clip left
      ((y + 8 - 1) < 0))          // Clip top
      return;
-  setAddrWindow(x, y, x+8, y+8); //8x8 square
+  setAddrWindow(x, y, x+8-1, y+8-1); //8x8 square
 
   if(!_cp437 && (c >= 176)) c++; // Handle 'classic' charset behavior
 
