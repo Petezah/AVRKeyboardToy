@@ -546,6 +546,59 @@ void Adafruit_ST7735::drawFastChar(int16_t x, int16_t y, unsigned char c, uint16
 #endif
 }
 
+void Adafruit_ST7735::drawFastCharBuffer(unsigned char* buf, uint16_t color, uint16_t bg)
+{
+  uint8_t xMax = CHAR_WIDTH * NUM_CHAR_COLUMNS;
+  uint8_t yMax = CHAR_HEIGHT * NUM_CHAR_ROWS;
+  setAddrWindow(0, 0, xMax, yMax - 1); // whole display
+
+  uint8_t hi = color >> 8, lo = color;
+  uint8_t bghi = bg >> 8, bglo = bg;
+
+#if defined (SPI_HAS_TRANSACTION)
+  SPI.beginTransaction(mySPISettings);
+#endif
+  *rsport |=  rspinmask;
+  *csport &= ~cspinmask;
+
+  uint8_t lineNum = 0;
+  uint8_t charRow = 0;
+  unsigned char *bufRow = buf;
+  for(uint8_t y=0; y<yMax; ++y)
+  {
+    ++lineNum;
+    if(lineNum >= CHAR_HEIGHT) 
+    {
+      lineNum = 0;
+      ++charRow;
+      bufRow += NUM_CHAR_COLUMNS;
+    }
+
+    unsigned char *bufCol = bufRow;
+    for(uint8_t charColumn=0; charColumn<NUM_CHAR_COLUMNS; ++charColumn, ++bufCol)
+    {
+      unsigned char c = *bufCol;
+      uint8_t line = pgm_read_byte(getFont()+(c*8)+lineNum);
+      for(int8_t j=0; j<8; j++, line <<= 1) {
+        if(line & 0x80) {
+          // Draw FG pixel
+          spiwrite(hi);
+          spiwrite(lo);
+        } else {
+          // Draw BG pixel
+          spiwrite(bghi);
+          spiwrite(bglo);
+        }
+      }
+    }
+  }
+
+  *csport |= cspinmask;
+#if defined (SPI_HAS_TRANSACTION)
+  SPI.endTransaction();
+#endif
+}
+
 void Adafruit_ST7735::fillScreen(uint16_t color) {
   fillRect(0, 0,  _width, _height, color);
 }

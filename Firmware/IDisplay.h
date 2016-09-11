@@ -8,6 +8,7 @@ class IDisplay
 {
 public:
     virtual void drawFastChar(int16_t x, int16_t y, unsigned char c, uint16_t color, uint16_t bg) = 0;
+    virtual void drawFastCharBuffer(unsigned char* buf, uint16_t color, uint16_t bg) = 0; // Assumes full screen
 };
 
 #endif

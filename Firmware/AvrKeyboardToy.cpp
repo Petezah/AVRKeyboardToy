@@ -50,6 +50,10 @@ void AvrKeyboardToy::Init()
         m_displayBuffer.write(c++, true);
     }
 
+    // TEST
+    for(int i=0; i<7; ++i) m_displayBuffer.write((char)65+i, true);
+    m_displayBuffer.GetBuffer()[0] = 65;
+
     RefreshDisplay(false);
 }
 
@@ -58,7 +62,8 @@ void AvrKeyboardToy::Update()
 	UpdateInterpreter();
     UpdateSerial();
     UpdateCursor();
-    //RefreshDisplay(false);
+    RefreshDisplay(false);
+    //m_displayBuffer.scrollBufferUp();
 }
 
 void AvrKeyboardToy::UpdateInterpreter()
@@ -93,15 +98,16 @@ void AvrKeyboardToy::RefreshDisplay(bool clearOnly)
     if (clearOnly) return;
 
     char* pC = m_displayBuffer.GetBuffer();
-    unsigned int yoffset = 0;
-    for (unsigned int y=0; y<NUM_CHAR_ROWS; ++y, yoffset += CHAR_HEIGHT)
-    {
-        unsigned int xoffset = 0;
-        for (unsigned int x=0; x<NUM_CHAR_COLUMNS; ++x, ++pC, xoffset += CHAR_WIDTH)
-        {
-            //m_display.setCursor(xoffset, yoffset);
-            //m_display.print(*pC);
-            m_display.drawFastChar(xoffset, yoffset, *pC, ST7735_WHITE, ST7735_BLUE);
-        }
-    }
+    m_display.drawFastCharBuffer((unsigned char*)pC, ST7735_WHITE, ST7735_BLUE);
+//    unsigned int yoffset = 0;
+//    for (unsigned int y=0; y<NUM_CHAR_ROWS; ++y, yoffset += CHAR_HEIGHT)
+//    {
+//        unsigned int xoffset = 0;
+//        for (unsigned int x=0; x<NUM_CHAR_COLUMNS; ++x, ++pC, xoffset += CHAR_WIDTH)
+//        {
+//            //m_display.setCursor(xoffset, yoffset);
+//            //m_display.print(*pC);
+//            m_display.drawFastChar(xoffset, yoffset, *pC, ST7735_WHITE, ST7735_BLUE);
+//        }
+//    }
 }
