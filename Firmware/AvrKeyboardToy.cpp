@@ -27,6 +27,13 @@
 #define TFT_SCLK 13   
 #define TFT_MOSI 11   
 ////
+
+// Special, serial-only commands
+#define CURS_UP CTRLW
+#define CURS_LF CTRLA
+#define CURS_DN CTRLS
+#define CURS_RT CTRLD
+//
     
 Adafruit_ST7735 g_display(TFT_CS, TFT_DC, TFT_RST);
 DisplayBuffer g_displayBuffer(&g_display);
@@ -152,6 +159,14 @@ void AvrKeyboardToy::UpdateInput()
             }
             break;
         }
+
+        // Our own serial commands; n/a in keyboard mode!
+        // This will make our life easier, since PuTTY does not
+        // send esc sequences correctly for cursor at least
+        case CURS_UP: g_displayBuffer.moveCursorUp(); break;
+        case CURS_DN: g_displayBuffer.moveCursorDown(); break;
+        case CURS_RT: g_displayBuffer.moveCursorRight(); break;
+        case CURS_LF: g_displayBuffer.moveCursorLeft(); break;
             
         default:
             gotChar = true;
