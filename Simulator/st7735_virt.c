@@ -252,6 +252,7 @@ st7735_update_setting (st7735_t *part)
 				swap_bytes(part->window.column.pv);
 				swap_bytes(part->window.column.pv + 2);
 				part->cursor.column = part->window.column.p.p1;
+				part->window.column.p.p2++; // account for an extra column
 
 				DEBUG_OUT ("ST7735: Column addr set: %d - %d\n", part->window.column.p.p1, part->window.column.p.p2);
 				st7735_set_flag (part, ST7735_FLAG_DIRTY, 1);
@@ -266,6 +267,7 @@ st7735_update_setting (st7735_t *part)
 				swap_bytes(part->window.row.pv);
 				swap_bytes(part->window.row.pv + 2);
 				part->cursor.row = part->window.row.p.p1;
+				part->window.row.p.p2++; // account for an extra row
 
 				DEBUG_OUT ("ST7735: Row addr set: %d - %d\n", part->window.row.p.p1, part->window.row.p.p2);
 				st7735_set_flag (part, ST7735_FLAG_DIRTY, 1);

@@ -18,6 +18,8 @@ public:
     void setChar(int16_t x, int16_t y, unsigned char c, uint16_t color, uint16_t bg);
 
     void resolveCursor();
+    int16_t getCursorX() { return m_cursor_x; }
+    int16_t getCursorY() { return m_cursor_y; }
     void scrollBufferUp();
 
     char* GetBuffer() { return m_displayBuffer; }

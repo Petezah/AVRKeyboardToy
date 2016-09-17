@@ -309,27 +309,6 @@ enum {
 static unsigned char inStream = kStreamSerial;
 static unsigned char outStream = kStreamSerial;
 
-
-////////////////////////////////////////////////////////////////////////////////
-// ASCII Characters
-#define CR	'\r'
-#define NL	'\n'
-#define LF      0x0a
-#define TAB	'\t'
-#define BELL	'\b'
-#define SPACE   ' '
-#define SQUOTE  '\''
-#define DQUOTE  '\"'
-#define CTRLC	0x03
-#define CTRLH	0x08
-#define CTRLI   0x09
-#define CTRLJ   0x0A
-#define CTRLK   0x0B
-#define CTRLL	0x0C
-#define CTRLS	0x13
-#define CTRLX	0x18
-#define DELETE  0x7F
-
 typedef short unsigned LINENUM;
 #ifdef ARDUINO
 #define ECHO_CHARS 1

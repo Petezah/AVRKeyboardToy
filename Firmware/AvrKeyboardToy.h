@@ -11,21 +11,33 @@
 #include <Adafruit_ST7735.h>
 #include "DisplayBuffer.h"
 
+#define AVRKEYTOY_VERSION_STRING "0.5"
+
 class AvrKeyboardToy
 {
 public:
     AvrKeyboardToy();
 
-    void Init();
+    void Init();    
     void Update();
 
 private:
+    // Init
+    void InitDisplay();
+    void InitInput();
+
+    // Update
+    void UpdateInput();
     void UpdateInterpreter();
     void UpdateSerial();
-    void UpdateCursor();
+    bool UpdateCursor();
 
     void RefreshDisplay(bool clearOnly);
-    
+
+    void DispatchInputChar(char c, uint16_t code);
+    void OutputChar(char c);
+    void OutputLineTerminator();
+
     //
     uint16_t m_displayBGcolor;
     uint16_t m_displayFGcolor;
@@ -34,6 +46,9 @@ private:
     int m_cursorX, m_cursorY;
     bool m_cursorVisible;
     unsigned long m_lastCursorMillis;
+
+    // keyboard
+    bool m_keyboardIsActive;
 };
 
 #endif //_AVRKEYBOARDTOY_H_

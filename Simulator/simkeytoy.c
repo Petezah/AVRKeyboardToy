@@ -235,7 +235,7 @@ main (int argc, char *argv[])
 
 	// Trace settings, if necessary
     //avr->trace = 1;
-	//avr->log = 3;
+	avr->log = 3;
 
 	pthread_t run;
 	pthread_create (&run, NULL, avr_run_thread, NULL);

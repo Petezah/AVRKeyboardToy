@@ -550,7 +550,7 @@ void Adafruit_ST7735::drawFastCharBuffer(unsigned char* buf, uint16_t color, uin
 {
   uint8_t xMax = CHAR_WIDTH * NUM_CHAR_COLUMNS;
   uint8_t yMax = CHAR_HEIGHT * NUM_CHAR_ROWS;
-  setAddrWindow(0, 0, xMax, yMax - 1); // whole display
+  setAddrWindow(0, 0, xMax - 1, yMax - 1); // whole display
 
   uint8_t hi = color >> 8, lo = color;
   uint8_t bghi = bg >> 8, bglo = bg;
@@ -561,7 +561,7 @@ void Adafruit_ST7735::drawFastCharBuffer(unsigned char* buf, uint16_t color, uin
   *rsport |=  rspinmask;
   *csport &= ~cspinmask;
 
-  uint8_t lineNum = 0;
+  uint8_t lineNum = -1;
   uint8_t charRow = 0;
   unsigned char *bufRow = buf;
   for(uint8_t y=0; y<yMax; ++y)
