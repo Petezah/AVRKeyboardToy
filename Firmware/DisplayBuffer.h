@@ -20,9 +20,14 @@ public:
     void resolveCursor();
     int16_t getCursorX() { return m_cursor_x; }
     int16_t getCursorY() { return m_cursor_y; }
+    void moveCursorUp() { if (m_cursor_y > 0) m_cursor_y--; }
+    void moveCursorDown() { if (m_cursor_x < (NUM_CHAR_ROWS - 1)) m_cursor_y++; }
+    void moveCursorLeft() { if (m_cursor_x > 0) m_cursor_x--; }
+    void moveCursorRight() { if (m_cursor_x < (NUM_CHAR_COLUMNS - 1)) m_cursor_x++; }
     void scrollBufferUp();
 
     char* GetBuffer() { return m_displayBuffer; }
+    char* GetCursorLine() { return m_displayBuffer + (NUM_CHAR_COLUMNS * m_cursor_y); }
     bool DisplayNeedsRefresh() { return m_displayNeedsRefresh; }
     void ResetRefreshFlag() { m_displayNeedsRefresh = false; }
 

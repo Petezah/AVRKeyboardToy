@@ -23,6 +23,8 @@
 #define CTRLL	0x0C
 #define CTRLS	0x13
 #define CTRLX	0x18
+#define ESC     0x1B
+#define LBRACKET '['
 #define DELETE  0x7F
 
 bool TranslateKey(uint16_t code, char *pOutChar);

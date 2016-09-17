@@ -57,7 +57,7 @@ void AvrKeyboardToy::Init()
     init();
 
     Serial.begin(9600);
-    Serial.println("AvrKeyboardToy v"AVRKEYTOY_VERSION_STRING);
+    Serial.println(F("AvrKeyboardToy v"AVRKEYTOY_VERSION_STRING));
 
     // TODO: our own init
     InitDisplay();
@@ -86,12 +86,12 @@ void AvrKeyboardToy::InitInput()
     if( (g_keyboard.read() & 0xFF) == PS2_KEY_ECHO )
     {
         m_keyboardIsActive = true;
-        Serial.println("Found keyboard!  Enabling keyboard for input");
+        Serial.println(F("Found keyboard!  Enabling keyboard for input"));
     }
     else
     {
         m_keyboardIsActive = false;
-        Serial.println("No keyboard was found.  Enabling UART serial input");
+        Serial.println(F("No keyboard was found.  Enabling UART serial input"));
     } 
 }
 
@@ -127,7 +127,36 @@ void AvrKeyboardToy::UpdateInput()
     else if (Serial.available()) // Keep serial for debug purposes
     {
         c = Serial.read();
-        gotChar = true;
+        switch (c)
+        {
+        case ESC: //serial escape sequence
+        {
+            const int maxNumEscChars = 5;
+            char escChars[maxNumEscChars] = {0};
+            int receivedEscChars = 0;
+            while (Serial.available() && receivedEscChars < maxNumEscChars) 
+                escChars[receivedEscChars++] = Serial.read();
+            
+            // Handle cursor keys
+            if (escChars[0] == LBRACKET)
+            {
+                switch(escChars[1])
+                {
+                case 'A': g_displayBuffer.moveCursorUp(); break;
+                case 'B': g_displayBuffer.moveCursorDown(); break;
+                case 'C': g_displayBuffer.moveCursorRight(); break;
+                case 'D': g_displayBuffer.moveCursorLeft(); break;
+                default: 
+                    break; // do nothing
+                }
+            }
+            break;
+        }
+            
+        default:
+            gotChar = true;
+            break;
+        }
     }
 
     if(gotChar)
@@ -200,10 +229,11 @@ void AvrKeyboardToy::DispatchInputChar(char c, uint16_t code)
     {
         case NL:
         case CR:
-            OutputLineTerminator();
+            PerformLineTermination();
             return;
 
         default:
+            //Serial.print(":"); Serial.print((int)c); Serial.print(";");
             OutputChar(c);
             return;
     }
@@ -215,8 +245,18 @@ void AvrKeyboardToy::OutputChar(char c)
     g_displayBuffer.write(c);
 }
 
-void AvrKeyboardToy::OutputLineTerminator()
+void AvrKeyboardToy::PerformLineTermination()
 {
+    // Read the line under the cursor
+    char execLine[NUM_CHAR_COLUMNS + 1] = {0};
+    char *pDispLine = g_displayBuffer.GetCursorLine();
+    memcpy(execLine, pDispLine, NUM_CHAR_COLUMNS);
+
+    // Output line terminators
     OutputChar(NL);
     OutputChar(CR);
+
+    // Execute line
+    Serial.print(F("Executing: "));
+    Serial.println(execLine);
 }

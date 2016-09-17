@@ -36,7 +36,7 @@ private:
 
     void DispatchInputChar(char c, uint16_t code);
     void OutputChar(char c);
-    void OutputLineTerminator();
+    void PerformLineTermination();
 
     //
     uint16_t m_displayBGcolor;
