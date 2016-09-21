@@ -119,7 +119,6 @@ void AvrKeyboardToy::UpdateInput()
     uint16_t code = 0;
     char c;
     bool gotChar = false;
-    bool printable = false;
     
     // Only try to read the keyboard if it is active
     if (m_keyboardIsActive)
@@ -127,51 +126,17 @@ void AvrKeyboardToy::UpdateInput()
         if(g_keyboard.available())
         {
             code = g_keyboard.read();
-            printable = TranslateKey(code, &c);
-            gotChar = true;
+            gotChar = TranslateKey(code, &c); // if it is printable, we will print it (gotChar)
+            if(!gotChar) // if it is not printable, we may be able to do something anyway
+            {
+                DispatchSpecialKeyboardInput(c, code);
+            }
         }
     }
     else if (Serial.available()) // Keep serial for debug purposes
     {
         c = Serial.read();
-        switch (c)
-        {
-        case ESC: //serial escape sequence
-        {
-            const int maxNumEscChars = 5;
-            char escChars[maxNumEscChars] = {0};
-            int receivedEscChars = 0;
-            while (Serial.available() && receivedEscChars < maxNumEscChars) 
-                escChars[receivedEscChars++] = Serial.read();
-            
-            // Handle cursor keys
-            if (escChars[0] == LBRACKET)
-            {
-                switch(escChars[1])
-                {
-                case 'A': g_displayBuffer.moveCursorUp(); break;
-                case 'B': g_displayBuffer.moveCursorDown(); break;
-                case 'C': g_displayBuffer.moveCursorRight(); break;
-                case 'D': g_displayBuffer.moveCursorLeft(); break;
-                default: 
-                    break; // do nothing
-                }
-            }
-            break;
-        }
-
-        // Our own serial commands; n/a in keyboard mode!
-        // This will make our life easier, since PuTTY does not
-        // send esc sequences correctly for cursor at least
-        case CURS_UP: g_displayBuffer.moveCursorUp(); break;
-        case CURS_DN: g_displayBuffer.moveCursorDown(); break;
-        case CURS_RT: g_displayBuffer.moveCursorRight(); break;
-        case CURS_LF: g_displayBuffer.moveCursorLeft(); break;
-            
-        default:
-            gotChar = true;
-            break;
-        }
+        gotChar = !DispatchSerialInput(c); // handle all printable chars below
     }
 
     if(gotChar)
@@ -236,6 +201,77 @@ void AvrKeyboardToy::RefreshDisplay(bool clearOnly)
 
     char* pC = g_displayBuffer.GetBuffer();
     g_display.drawFastCharBuffer((unsigned char*)pC, ST7735_WHITE, ST7735_BLUE);
+}
+
+bool AvrKeyboardToy::DispatchSerialInput(char c) // returns true if handled
+{
+    switch (c)
+    {
+    case ESC: //serial escape sequence
+    {
+        const int maxNumEscChars = 5;
+        char escChars[maxNumEscChars] = {0};
+        int receivedEscChars = 0;
+        while (Serial.available() && receivedEscChars < maxNumEscChars) 
+            escChars[receivedEscChars++] = Serial.read();
+        
+        // Handle cursor keys
+        if (escChars[0] == LBRACKET)
+        {
+            switch(escChars[1])
+            {
+            case 'A': g_displayBuffer.moveCursorUp(); break;
+            case 'B': g_displayBuffer.moveCursorDown(); break;
+            case 'C': g_displayBuffer.moveCursorRight(); break;
+            case 'D': g_displayBuffer.moveCursorLeft(); break;
+            default: 
+                break; // do nothing
+            }
+        }
+        break; // handle all escape codes
+    }
+
+    // Our own serial commands; n/a in keyboard mode!
+    // This will make our life easier, since PuTTY does not
+    // send esc sequences correctly for cursor at least
+    case CURS_UP: g_displayBuffer.moveCursorUp(); break;
+    case CURS_DN: g_displayBuffer.moveCursorDown(); break;
+    case CURS_RT: g_displayBuffer.moveCursorRight(); break;
+    case CURS_LF: g_displayBuffer.moveCursorLeft(); break;
+        
+    default:
+        // printable characters; do not handle
+        return false;
+    }
+
+    // handle everything that falls through above;
+    // only printables we don't handle end up in "default"
+    return true;
+}
+
+void AvrKeyboardToy::DispatchSpecialKeyboardInput(char c, uint16_t code)
+{
+    // The top bits are status and the bottom bits are the scan code.
+	// We need to check the status code, because we only care about keydown, not keyup
+	char scanCode = ((char)code & 0xFF);
+	bool keydown = ((code & PS2_BREAK) == 0); // break flag means keyup
+	bool shift = ((code & PS2_SHIFT) != 0);
+	bool ctrl = ((code & PS2_CTRL) != 0);
+	bool alt = ((code & PS2_ALT) != 0);
+
+    if (keydown)
+    {
+        switch (scanCode)
+        {
+        case PS2_KEY_UP_ARROW: g_displayBuffer.moveCursorUp(); break;
+        case PS2_KEY_DN_ARROW: g_displayBuffer.moveCursorDown(); break;
+        case PS2_KEY_R_ARROW: g_displayBuffer.moveCursorRight(); break;
+        case PS2_KEY_L_ARROW: g_displayBuffer.moveCursorLeft(); break;
+        
+        default:
+            break;
+        }
+    }
 }
 
 void AvrKeyboardToy::DispatchInputChar(char c, uint16_t code)

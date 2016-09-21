@@ -34,6 +34,8 @@ private:
 
     void RefreshDisplay(bool clearOnly);
 
+    bool DispatchSerialInput(char c); // returns true if handled
+    void DispatchSpecialKeyboardInput(char c, uint16_t code);
     void DispatchInputChar(char c, uint16_t code);
     void OutputChar(char c);
     void PerformLineTermination();
