@@ -9,6 +9,7 @@
 
 #include <PS2KeyAdvanced.h>
 #include "KeyboardUtil.h"
+#include "TinyBasicPlus.h"
 
 // Keyboard Pins
 #define KEYBOARD_DATA 4
@@ -71,6 +72,8 @@ void AvrKeyboardToy::Init()
     InitInput();
 
     //displayTestPattern();
+    setupBASIC();
+    performBASICWarmStart();
 
     RefreshDisplay(false);
 }
@@ -310,4 +313,11 @@ void AvrKeyboardToy::PerformLineTermination()
     // Execute line
     Serial.print(F("Executing: "));
     Serial.println(execLine);
+    
+    injectln(execLine);
+    BASICRunState state = execBASIC();
+    if (state == WarmStart)
+    {
+        performBASICWarmStart();
+    }
 }

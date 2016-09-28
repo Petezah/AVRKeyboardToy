@@ -88,6 +88,7 @@
 //#define ARDUINO 1
 #endif
 
+#include <TinyBasicPlus.h>
 
 ////////////////////////////////////////////////////////////////////////////////
 // Feature option configuration...
@@ -98,10 +99,10 @@
 #undef ENABLE_FILEIO
 
 // Enable output via SPI display
-#define ENABLE_DISPLAY
+// #define ENABLE_DISPLAY
 
 // Enable input via PS/2 Keyboard
-#define ENABLE_KEYBOARD
+//#define ENABLE_KEYBOARD
 
 // Enable output via I2C Port Expander
 #define ENABLE_PORTEXPANDER
@@ -211,6 +212,9 @@ char displayBuffer[NUM_CHAR_ROWS*NUM_CHAR_COLUMNS];
 #else
 #define kRamDisplay (0)
 #endif
+
+#include <DisplayBuffer.h>
+extern DisplayBuffer g_displayBuffer;
 
 #ifdef ENABLE_KEYBOARD
 #include <PS2KeyAdvanced.h>
@@ -770,6 +774,18 @@ static void getln(char prompt)
   }
 }
 
+void injectln(char* line)
+{
+  unsigned char *cDst = program_end+sizeof(LINENUM);
+  unsigned char *cSrc = (unsigned char*)line;
+
+  while(*cSrc)
+  {
+    *cDst++ = *cSrc++;
+  }
+  *cDst = NL; // Terminate the program line
+}
+
 /***************************************************************************/
 static unsigned char *findline(void)
 {
@@ -1038,8 +1054,46 @@ static short int expression(void)
   return 0;
 }
 
+// Pass 8-bit (each) R,G,B, get back 16-bit packed color
+uint16_t color565(uint8_t r, uint8_t g, uint8_t b) {
+  return ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3);
+}
+
 /***************************************************************************/
 void loopBASIC()
+{
+  BASICRunState runState = WarmStart;
+
+//prompt: // goto prompt statements are now Run returns
+  while (true) 
+  {
+    if(runState == WarmStart) // goto warmstart are now return WarmStart
+    {
+      performBASICWarmStart();
+    }
+
+    bool triggerRunExec = false;
+    if( triggerRun )
+    {
+      triggerRun = false;
+      triggerRunExec = true;
+      current_line = program_start;
+    }
+
+    getln( '>' ); // TODO: execution can begin here, after getln; the new line is injected, and executed
+    runState = execBASIC(triggerRunExec);
+  }
+}
+
+void performBASICWarmStart()
+{
+  // this signifies that it is running in 'direct' mode.
+  current_line = 0;
+  sp = program+sizeof(program);
+  printmsg(okmsg);
+}
+
+BASICRunState execBASIC(bool triggerRunExec)
 {
   unsigned char *start;
   unsigned char *newEnd;
@@ -1054,43 +1108,11 @@ void loopBASIC()
   boolean alsoWait = false;
   int val;
 
-#ifdef ARDUINO
-#ifdef ENABLE_TONES
-  noTone( kPiezoPin );
-#endif
-#endif
-
-  program_start = program;
-  program_end = program_start;
-  sp = program+sizeof(program);  // Needed for printnum
-  stack_limit = program+sizeof(program)-STACK_SIZE;
-  variables_begin = stack_limit - 27*VAR_SIZE;
-
-  // memory free
-  printnum(variables_begin-program_end);
-  printmsg(memorymsg);
-#ifdef ARDUINO
-#ifdef ENABLE_EEPROM
-  // eprom size
-  printnum( E2END+1 );
-  printmsg( eeprommsg );
-#endif /* ENABLE_EEPROM */
-#endif /* ARDUINO */
-
-warmstart:
-  // this signifies that it is running in 'direct' mode.
-  current_line = 0;
-  sp = program+sizeof(program);
-  printmsg(okmsg);
-
-prompt:
-  if( triggerRun ){
-    triggerRun = false;
-    current_line = program_start;
+  if (triggerRunExec)
+  {
     goto execline;
   }
 
-  getln( '>' );
   toUppercaseBuffer();
 
   txtpos = program_end+sizeof(unsigned short);
@@ -1160,7 +1182,7 @@ prompt:
   }
 
   if(txtpos[sizeof(LINENUM)+sizeof(char)] == NL) // If the line has no txt, it was just a delete
-    goto prompt;
+    return Run;
 
 
 
@@ -1200,15 +1222,15 @@ prompt:
     }
     program_end = newEnd;
   }
-  goto prompt;
+  return Run;
 
 unimplemented:
   printmsg(unimplimentedmsg);
-  goto prompt;
+  return Run;
 
 qhow:	
   printmsg(howmsg);
-  goto prompt;
+  return Run;
 
 qwhat:	
   printmsgNoNL(whatmsg);
@@ -1222,11 +1244,11 @@ qwhat:
     *txtpos = tmp;
   }
   line_terminator();
-  goto prompt;
+  return Run;
 
 qsorry:	
   printmsg(sorrymsg);
-  goto warmstart;
+  return WarmStart;
 
 run_next_statement:
   while(*txtpos == ':')
@@ -1239,13 +1261,13 @@ run_next_statement:
 direct: 
   txtpos = program_end+sizeof(LINENUM);
   if(*txtpos == NL)
-    goto prompt;
+    return Run;
 
 interperateAtTxtpos:
   if(breakcheck())
   {
     printmsg(breakmsg);
-    goto warmstart;
+    return WarmStart;
   }
 
   scantable(keywords);
@@ -1278,7 +1300,7 @@ interperateAtTxtpos:
     if(txtpos[0] != NL)
       goto qwhat;
     program_end = program_start;
-    goto prompt;
+    return Run;
   case KW_RUN:
     current_line = program_start;
     goto execline;
@@ -1331,7 +1353,7 @@ interperateAtTxtpos:
     goto execline;
   case KW_BYE:
     // Leave the basic interperater
-    return;
+    return Terminate;
 
   case KW_AWRITE:  // AWRITE <pin>, HIGH|LOW
     isDigital = false;
@@ -1390,12 +1412,12 @@ interperateAtTxtpos:
 
 execnextline:
   if(current_line == NULL)		// Processing direct commands?
-    goto prompt;
+    return Run;
   current_line +=	 current_line[sizeof(LINENUM)];
 
 execline:
   if(current_line == program_end) // Out of lines to run
-    goto warmstart;
+    return WarmStart;
   txtpos = current_line+sizeof(LINENUM)+sizeof(char);
   goto interperateAtTxtpos;
 
@@ -1446,7 +1468,7 @@ esave:
     // go back to standard output, close the file
     outStream = kStreamSerial;
     
-    goto warmstart;
+    return WarmStart;
   }
   
   
@@ -1461,7 +1483,7 @@ eload:
   eepos = 0;
   inStream = kStreamEEProm;
   inhibitOutput = true;
-  goto warmstart;
+  return WarmStart;
 #endif /* ENABLE_EEPROM */
 #endif
 
@@ -1619,7 +1641,7 @@ gosub_return:
       break;
     default:
       //printf("Stack is stuffed!\n");
-      goto warmstart;
+      return WarmStart;
     }
   }
   // Didn't find the variable we've been looking for
@@ -1693,7 +1715,7 @@ list:
   list_line = findline();
   while(list_line != program_end)
     printline();
-  goto warmstart;
+  return WarmStart;
 
 print:
   // If we have an empty list then just put out a NL
@@ -1848,7 +1870,7 @@ files:
 
 #ifdef ENABLE_FILEIO
     cmd_Files();
-  goto warmstart;
+  return WarmStart;
 #else
   goto unimplemented;
 #endif // ENABLE_FILEIO
@@ -1890,7 +1912,7 @@ load:
     // this will kickstart a series of events to read in from the file.
 
   }
-  goto warmstart;
+  return WarmStart;
 #else // ENABLE_FILEIO
   goto unimplemented;
 #endif // ENABLE_FILEIO
@@ -1931,7 +1953,7 @@ save:
 #else // ARDUINO
     // desktop
 #endif // ARDUINO
-    goto warmstart;
+    return WarmStart;
   }
 #else // ENABLE_FILEIO
   goto unimplemented;
@@ -2034,18 +2056,19 @@ tonegen:
 		  0xBB, 0xBB, 0xBB  //Lightgray
 	  };
 	  uint8_t* pColor = colors + ((colorIdx % numColors) * 3);
-	  uint16_t color = display.Color565(pColor[0], pColor[1], pColor[2]);
+	  uint16_t color = color565(pColor[0], pColor[1], pColor[2]);
 
 	  if (isBgColor)
 	  {
 		  display_bgcolor = color;
+      g_displayBuffer.setBgColor(color);
 	  }
 	  else
 	  {
 		  display_fgcolor = color;
+      g_displayBuffer.setFgColor(color);
 	  }
 
-	  display.setTextColor(display_fgcolor, display_bgcolor);
 	  goto run_next_statement;
   }
 #endif /* ENABLE_DISPLAY */
@@ -2105,7 +2128,8 @@ static void line_terminator(void)
 void setupBASIC()
 {
 #ifdef ARDUINO
-  Serial.begin(kConsoleBaud);	// opens serial port
+  // Serial is already open
+  //Serial.begin(kConsoleBaud);	// opens serial port
 
 #ifdef ENABLE_DISPLAY
   display.initR(INITR_BLACKTAB);  // You will need to do this in every sketch
@@ -2150,9 +2174,6 @@ void setupBASIC()
   while( !Serial ); // for Leonardo
   
   Serial.println( sentinel );
-#ifdef ENABLE_DISPLAY
-  //display.println(sentinel);
-#endif
   printmsg(initmsg);
 
 #ifdef ENABLE_FILEIO
@@ -2182,6 +2203,27 @@ void setupBASIC()
     runAfterLoad = true;
   }
 #endif /* ENABLE_EAUTORUN */
+#endif /* ENABLE_EEPROM */
+
+#ifdef ENABLE_TONES
+  noTone( kPiezoPin );
+#endif
+#endif
+
+  program_start = program;
+  program_end = program_start;
+  sp = program+sizeof(program);  // Needed for printnum
+  stack_limit = program+sizeof(program)-STACK_SIZE;
+  variables_begin = stack_limit - 27*VAR_SIZE;
+
+  // memory free
+  printnum(variables_begin-program_end);
+  printmsg(memorymsg);
+#ifdef ARDUINO
+#ifdef ENABLE_EEPROM
+  // eprom size
+  printnum( E2END+1 );
+  printmsg( eeprommsg );
 #endif /* ENABLE_EEPROM */
 
 #endif /* ARDUINO */
@@ -2334,6 +2376,11 @@ static void outchar(unsigned char c, bool suppressDisplayOut)
 		display.write(c);
 	}
 #endif
+
+  if (!suppressDisplayOut)
+  {
+    g_displayBuffer.write(c);
+  }
 
 #else
   putchar(c);

@@ -26,6 +26,9 @@ public:
     void moveCursorRight() { if (m_cursor_x < (NUM_CHAR_COLUMNS - 1)) m_cursor_x++; }
     void scrollBufferUp();
 
+    void setBgColor(int16_t color) { m_bgColor = color; }
+    void setFgColor(int16_t color) { m_fgColor = color; }
+
     char* GetBuffer() { return m_displayBuffer; }
     char* GetCursorLine() { return m_displayBuffer + (NUM_CHAR_COLUMNS * m_cursor_y); }
     bool DisplayNeedsRefresh() { return m_displayNeedsRefresh; }
@@ -35,6 +38,7 @@ private:
     IDisplay *m_pOutputDisplay;
     char m_displayBuffer[DISPLAY_BUF_SIZE];
     int16_t m_cursor_x, m_cursor_y;
+    int16_t m_fgColor, m_bgColor;
     bool m_displayNeedsRefresh;
 };
 
