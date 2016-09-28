@@ -72,8 +72,6 @@ void AvrKeyboardToy::Init()
     InitInput();
 
     //displayTestPattern();
-    setupBASIC();
-    performBASICWarmStart();
 
     RefreshDisplay(false);
 }
@@ -150,7 +148,13 @@ void AvrKeyboardToy::UpdateInput()
 
 void AvrKeyboardToy::UpdateInterpreter()
 {
-
+    static bool setupBasic = true;
+    if(setupBasic)
+    {
+        setupBasic = false;
+        setupBASIC();
+        performBASICWarmStart();
+    }
 }
 
 void AvrKeyboardToy::UpdateSerial()

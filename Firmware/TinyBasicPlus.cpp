@@ -105,7 +105,7 @@
 //#define ENABLE_KEYBOARD
 
 // Enable output via I2C Port Expander
-#define ENABLE_PORTEXPANDER
+//#define ENABLE_PORTEXPANDER
 
 // this turns on "autorun".  if there's FileIO, and a file "autorun.bas",
 // then it will load it and run it when starting up
@@ -131,8 +131,8 @@
 // 1kbyte on the '328, and 512 bytes on the '168.  Enabling this here will
 // allow for this funcitonality to work.  Note that this only works on AVR
 // arduino.  Disable it for DUE/other devices.
-#define ENABLE_EEPROM 1
-//#undef ENABLE_EEPROM
+//#define ENABLE_EEPROM 1
+#undef ENABLE_EEPROM
 
 // Sometimes, we connect with a slower device as the console.
 // Set your console D0/D1 baud rate here (9600 baud default)
@@ -251,7 +251,8 @@ Adafruit_MCP23017 mcp;
 #define kRamTones (0)
 #endif
 #endif /* ARDUINO */
-#define kRamSize  (RAMEND - 1160 - kRamFileIO - kRamTones - kRamDisplay) 
+// TODO: more accurately determine free RAM
+#define kRamSize  1024 //(RAMEND - 1160 - kRamFileIO - kRamTones - kRamDisplay) 
 
 #ifndef ARDUINO
 // Not arduino setup

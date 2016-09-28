@@ -73,6 +73,10 @@ keyCB (unsigned char key, int x, int y)
 		case 0x1B: // ESC
 			exit (0);
 			break;
+		case '`':
+			avr->gdb_port = 1234;
+			avr_gdb_init(avr);
+			break;
 		default:
 			uart_stdin_inject(&uart_stdin, key);
 			break;
