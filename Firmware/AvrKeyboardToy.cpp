@@ -309,6 +309,7 @@ void AvrKeyboardToy::PerformLineTermination()
     char execLine[NUM_CHAR_COLUMNS + 1] = {0};
     char *pDispLine = g_displayBuffer.GetCursorLine();
     memcpy(execLine, pDispLine, NUM_CHAR_COLUMNS);
+    execLine[NUM_CHAR_COLUMNS] = 0;
 
     // Output line terminators
     OutputChar(NL);
@@ -320,8 +321,8 @@ void AvrKeyboardToy::PerformLineTermination()
     
     injectln(execLine);
     BASICRunState state = execBASIC();
-    if (state == WarmStart)
-    {
-        performBASICWarmStart();
-    }
+    //if (state == WarmStart)
+    //{
+    //    performBASICWarmStart();
+    //}
 }

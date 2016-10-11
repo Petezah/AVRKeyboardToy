@@ -782,7 +782,9 @@ void injectln(char* line)
 
   while(*cSrc)
   {
-    *cDst++ = *cSrc++;
+    *cDst = *cSrc;
+    cDst++;
+    cSrc++;
   }
   *cDst = NL; // Terminate the program line
 }
