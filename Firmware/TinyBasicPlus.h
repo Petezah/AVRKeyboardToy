@@ -5,7 +5,9 @@
 
 enum BASICRunState
 {
+    InitStart,
     WarmStart,
+    Idle,
     Run,
     Terminate
 };

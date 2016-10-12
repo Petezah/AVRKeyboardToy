@@ -9,7 +9,6 @@
 
 #include <PS2KeyAdvanced.h>
 #include "KeyboardUtil.h"
-#include "TinyBasicPlus.h"
 
 // Keyboard Pins
 #define KEYBOARD_DATA 4
@@ -55,7 +54,8 @@ void displayTestPattern()
 AvrKeyboardToy::AvrKeyboardToy() :
     m_displayBGcolor(ST7735_BLUE), m_displayFGcolor(ST7735_WHITE),
     m_cursorX(0), m_cursorY(0), m_cursorVisible(true), m_lastCursorMillis(0),
-    m_keyboardIsActive(false)
+    m_keyboardIsActive(false),
+    m_interpreterState(InitStart)
 {
 }
 
@@ -148,12 +148,25 @@ void AvrKeyboardToy::UpdateInput()
 
 void AvrKeyboardToy::UpdateInterpreter()
 {
-    static bool setupBasic = true;
-    if(setupBasic)
+    Serial.print((int)m_interpreterState);
+    switch (m_interpreterState)
     {
-        setupBasic = false;
+    case InitStart:
+        m_interpreterState = WarmStart;
         setupBASIC();
+        break;
+
+    case WarmStart:
+        m_interpreterState = Idle;
         performBASICWarmStart();
+        break;
+
+    case Run:
+        m_interpreterState = execBASIC();
+        break;
+
+    default:
+        break;
     }
 }
 
@@ -306,10 +319,11 @@ void AvrKeyboardToy::OutputChar(char c)
 void AvrKeyboardToy::PerformLineTermination()
 {
     // Read the line under the cursor
-    char execLine[NUM_CHAR_COLUMNS + 1] = {0};
+    char execLine[NUM_CHAR_COLUMNS + 2] = {0};
     char *pDispLine = g_displayBuffer.GetCursorLine();
     memcpy(execLine, pDispLine, NUM_CHAR_COLUMNS);
-    execLine[NUM_CHAR_COLUMNS] = 0;
+    execLine[NUM_CHAR_COLUMNS] = '\n';
+    execLine[NUM_CHAR_COLUMNS + 1] = 0;
 
     // Output line terminators
     OutputChar(NL);
@@ -320,9 +334,5 @@ void AvrKeyboardToy::PerformLineTermination()
     Serial.println(execLine);
     
     injectln(execLine);
-    BASICRunState state = execBASIC();
-    //if (state == WarmStart)
-    //{
-    //    performBASICWarmStart();
-    //}
+    m_interpreterState = Run;
 }

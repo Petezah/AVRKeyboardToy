@@ -10,6 +10,7 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_ST7735.h>
 #include "DisplayBuffer.h"
+#include "TinyBasicPlus.h"
 
 #define AVRKEYTOY_VERSION_STRING "0.5"
 
@@ -51,6 +52,9 @@ private:
 
     // keyboard
     bool m_keyboardIsActive;
+
+    // interpreter
+    BASICRunState m_interpreterState;
 };
 
 #endif //_AVRKEYBOARDTOY_H_
