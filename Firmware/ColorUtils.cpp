@@ -31,14 +31,15 @@ uint16_t lookupColor(uint8_t index)
 	    0xBB, 0xBB, 0xBB  //Lightgray
 	};
 
-	// if (index == 14){
-	// 	return 0xFFFF;
-	// } else if (index == 6)
-	// {
-	// 	return 0x001F;
-	// }
+	// TODO there is something wrong here
+	if (index == 14){
+		return 0xFFFF;
+	} else if (index == 6)
+	{
+		return 0x001F;
+	}
    
     uint8_t* pColor = colors + ((index % numColors) * 3);
     uint16_t color = color565(pColor[0], pColor[1], pColor[2]);
-	Serial.println(color, 16);
+	//Serial.println(color, 16);
  }

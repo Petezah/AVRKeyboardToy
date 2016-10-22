@@ -29,6 +29,7 @@ public:
 
     void setBgColor(uint8_t color) { m_cursorColor = (m_cursorColor & 0x0F) | ((color << 4) & 0xF0); }
     void setFgColor(uint8_t color) { m_cursorColor = (m_cursorColor & 0xF0) | (color & 0x0F); }
+    void getColors(uint16_t* bg, uint16_t* fg);
 
     char* GetBuffer() { return m_displayBuffer; }
     uint8_t* GetColorBuffer() { return m_colorBuffer; }

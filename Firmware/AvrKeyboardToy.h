@@ -41,10 +41,6 @@ private:
     void OutputChar(char c);
     void PerformLineTermination();
 
-    //
-    uint16_t m_displayBGcolor;
-    uint16_t m_displayFGcolor;
-
     // cursor data
     int m_cursorX, m_cursorY;
     bool m_cursorVisible;

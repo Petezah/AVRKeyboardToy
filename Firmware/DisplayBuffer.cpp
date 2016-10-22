@@ -54,7 +54,7 @@ void DisplayBuffer::setChar(int16_t x, int16_t y, unsigned char c, uint8_t color
     m_colorBuffer[displayIdx] = color;
     if(m_pOutputDisplay != NULL)
     {
-        Serial.println((int)color, 16);
+        //Serial.println((int)color, 16);
         uint16_t fg = lookupColor((color >> 4) & 0x0F);
         uint16_t bg = lookupColor(color & 0x0F);
 
@@ -96,4 +96,10 @@ void DisplayBuffer::scrollBufferUp()
     {
         m_displayNeedsRefresh = true;
     }
+}
+
+void DisplayBuffer::getColors(uint16_t* bg, uint16_t* fg)
+{
+    *bg = lookupColor(m_cursorColor & 0x0F);
+    *fg = lookupColor((m_cursorColor) >> 4 & 0x0F);
 }

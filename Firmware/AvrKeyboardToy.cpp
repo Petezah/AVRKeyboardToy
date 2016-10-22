@@ -52,7 +52,6 @@ void displayTestPattern()
 }
 
 AvrKeyboardToy::AvrKeyboardToy() :
-    m_displayBGcolor(ST7735_BLUE), m_displayFGcolor(ST7735_WHITE),
     m_cursorX(0), m_cursorY(0), m_cursorVisible(true), m_lastCursorMillis(0),
     m_keyboardIsActive(false),
     m_interpreterState(InitStart)
@@ -178,6 +177,9 @@ void AvrKeyboardToy::UpdateSerial()
 
 bool AvrKeyboardToy::UpdateCursor()
 {
+    uint16_t bg,fg;
+    g_displayBuffer.getColors(&bg, &fg);
+
     int16_t bufX = g_displayBuffer.getCursorX();
     int16_t bufY = g_displayBuffer.getCursorY();
     char* pC = g_displayBuffer.GetBuffer() + m_cursorY * NUM_CHAR_COLUMNS + m_cursorX;
@@ -187,8 +189,8 @@ bool AvrKeyboardToy::UpdateCursor()
         m_cursorVisible = true;
         g_display.drawFastChar(
             m_cursorX*CHAR_WIDTH, m_cursorY*CHAR_HEIGHT, *pC, 
-            m_displayFGcolor,
-            m_displayBGcolor
+            fg,
+            bg
             );
         m_cursorX = bufX;
         m_cursorY = bufY;
@@ -205,8 +207,8 @@ bool AvrKeyboardToy::UpdateCursor()
     pC = g_displayBuffer.GetBuffer() + m_cursorY * NUM_CHAR_COLUMNS + m_cursorX;
     g_display.drawFastChar(
         m_cursorX*CHAR_WIDTH, m_cursorY*CHAR_HEIGHT, *pC, 
-        m_cursorVisible ? m_displayBGcolor : m_displayFGcolor,
-        m_cursorVisible ? m_displayFGcolor : m_displayBGcolor
+        m_cursorVisible ? bg : fg,
+        m_cursorVisible ? fg : bg
         );
 
     return result; // signal that a refresh can be done safely
