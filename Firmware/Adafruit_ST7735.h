@@ -155,7 +155,7 @@ class Adafruit_ST7735 : public Adafruit_GFX, public IDisplay {
 
   virtual void drawFastChar(int16_t x, int16_t y, unsigned char c, uint16_t color,
              uint16_t bg);
-  virtual void drawFastCharBuffer(unsigned char* buf, uint16_t color, uint16_t bg); // Assumes full screen
+  virtual void drawFastCharBuffer(unsigned char* buf, uint8_t* colorBuf); // Assumes full screen
 
   // Gains speed by completely overwriting the contents of the block beneath the character
 

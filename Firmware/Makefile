@@ -50,7 +50,7 @@ TARGET = AvrKeyboardToy
 ARDUINO = ./arduino
 SRC = $(ARDUINO)/wiring.c $(ARDUINO)/wiring_digital.c $(ARDUINO)/wiring_analog.c \
 	$(ARDUINO)/hooks.c $(ARDUINO)/WInterrupts.c $(ARDUINO)/utility/twi.c
-CXXSRC = $(TARGET).cpp main.cpp TinyBasicPlus.cpp KeyboardUtil.cpp DisplayBuffer.cpp \
+CXXSRC = $(TARGET).cpp main.cpp TinyBasicPlus.cpp KeyboardUtil.cpp DisplayBuffer.cpp ColorUtils.cpp \
 	Adafruit_GFX.cpp Adafruit_ST7735.cpp \
 	Adafruit_MCP23017.cpp \
 	PS2KeyAdvanced.cpp \
@@ -69,7 +69,8 @@ MAKEFILE = Makefile
 # Debugging format.
 # Native formats for AVR-GCC's -g are stabs [default], or dwarf-2.
 # AVR (extended) COFF requires stabs, plus an avr-objcopy run.
-# DEBUG = stabs
+# Using dwarf-2 here so that I can remote-debug using simavr and avr-gdb
+DEBUG = dwarf-2
 
 OPT = s
 
@@ -100,7 +101,7 @@ CXXEXTRA = -fpermissive -fno-exceptions # -flto
 LDSIZEOPT = -Wl,-gc-sections
 
 CFLAGS = $(CDEBUG) $(CDEFS) $(CINCS) -O$(OPT) $(CWARN) $(CSTANDARD) $(CTUNING) $(CSIZEOPT) $(CEXTRA)
-CXXFLAGS = $(CXXSTANDARD) $(CDEFS) $(CINCS) -O$(OPT) $(CXXFIXSTATICS) $(CXXSIZEOPT) $(CXXEXTRA)
+CXXFLAGS = $(CDEBUG) $(CXXSTANDARD) $(CDEFS) $(CINCS) -O$(OPT) $(CXXFIXSTATICS) $(CXXSIZEOPT) $(CXXEXTRA)
 #ASFLAGS = -Wa,-adhlns=$(<:.S=.lst),-gstabs 
 LDFLAGS = $(LDSIZEOPT)
 

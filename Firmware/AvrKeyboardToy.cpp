@@ -105,13 +105,14 @@ void AvrKeyboardToy::InitInput()
 
 void AvrKeyboardToy::Update()
 {
-    UpdateInput();
 	UpdateInterpreter();
-    UpdateSerial();
+    UpdateInput();
     if(UpdateCursor())
     {
         RefreshDisplay(false);
     }
+    UpdateSerial();
+
     //g_displayBuffer.scrollBufferUp();
 }
 
@@ -148,7 +149,7 @@ void AvrKeyboardToy::UpdateInput()
 
 void AvrKeyboardToy::UpdateInterpreter()
 {
-    Serial.print((int)m_interpreterState);
+    //Serial.print((int)m_interpreterState);
     switch (m_interpreterState)
     {
     case InitStart:
@@ -220,7 +221,8 @@ void AvrKeyboardToy::RefreshDisplay(bool clearOnly)
     }
 
     char* pC = g_displayBuffer.GetBuffer();
-    g_display.drawFastCharBuffer((unsigned char*)pC, ST7735_WHITE, ST7735_BLUE);
+    uint8_t* pColorBuf = g_displayBuffer.GetColorBuffer();
+    g_display.drawFastCharBuffer((unsigned char*)pC, pColorBuf);
 }
 
 bool AvrKeyboardToy::DispatchSerialInput(char c) // returns true if handled
@@ -303,6 +305,12 @@ void AvrKeyboardToy::DispatchInputChar(char c, uint16_t code)
             PerformLineTermination();
             return;
 
+        case CTRLH:
+	    case DELETE:
+            Serial.write(c); // echo on serial
+            g_displayBuffer.backspace();
+            return;
+
         default:
             //Serial.print(":"); Serial.print((int)c); Serial.print(";");
             OutputChar(c);
@@ -322,8 +330,25 @@ void AvrKeyboardToy::PerformLineTermination()
     char execLine[NUM_CHAR_COLUMNS + 2] = {0};
     char *pDispLine = g_displayBuffer.GetCursorLine();
     memcpy(execLine, pDispLine, NUM_CHAR_COLUMNS);
-    execLine[NUM_CHAR_COLUMNS] = '\n';
     execLine[NUM_CHAR_COLUMNS + 1] = 0;
+    execLine[NUM_CHAR_COLUMNS] = ' ';
+
+    // Find the last non-space char and terminate the command there
+    for (int i=NUM_CHAR_COLUMNS; i >= 0; --i)
+    {
+        if (execLine[i] != ' ')
+        {
+            execLine[i+1] = '\n';
+            break;
+        }
+    }
+
+    // Find the first non-space char and execute from there
+    char* pExecCmd = execLine;
+    while (*pExecCmd == ' ' && *pExecCmd != '\n') // also stop at our newline
+    {
+        ++pExecCmd;
+    }
 
     // Output line terminators
     OutputChar(NL);
@@ -331,8 +356,8 @@ void AvrKeyboardToy::PerformLineTermination()
 
     // Execute line
     Serial.print(F("Executing: "));
-    Serial.println(execLine);
+    Serial.println(pExecCmd);
     
-    injectln(execLine);
+    injectln(pExecCmd);
     m_interpreterState = Run;
 }

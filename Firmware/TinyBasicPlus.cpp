@@ -252,7 +252,7 @@ Adafruit_MCP23017 mcp;
 #endif
 #endif /* ARDUINO */
 // TODO: more accurately determine free RAM
-#define kRamSize  1024 //(RAMEND - 1160 - kRamFileIO - kRamTones - kRamDisplay) 
+#define kRamSize  600 //(RAMEND - 1160 - kRamFileIO - kRamTones - kRamDisplay) 
 
 #ifndef ARDUINO
 // Not arduino setup
@@ -373,10 +373,8 @@ static const unsigned char keywords[] PROGMEM = {
   'E','S','A','V','E'+0x80,
 #endif
 #endif
-#ifdef ENABLE_DISPLAY
   'B','G','C','O','L','O','R' + 0x80,
   'F','G','C','O','L','O','R' + 0x80,
-#endif
 #ifdef ENABLE_PORTEXPANDER
   'X','W','R','I','T','E' + 0x80,
 #endif
@@ -411,10 +409,8 @@ enum {
   KW_ECHAIN, KW_ELIST, KW_ELOAD, KW_EFORMAT, KW_ESAVE, 
 #endif
 #endif
-#ifdef ENABLE_DISPLAY
   KW_BGCOLOR,
   KW_FGCOLOR,
-#endif
 #ifdef ENABLE_PORTEXPANDER
   KW_XWRITE,
 #endif
@@ -1058,9 +1054,7 @@ static short int expression(void)
 }
 
 // Pass 8-bit (each) R,G,B, get back 16-bit packed color
-uint16_t color565(uint8_t r, uint8_t g, uint8_t b) {
-  return ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3);
-}
+uint16_t color565(uint8_t r, uint8_t g, uint8_t b);
 
 /***************************************************************************/
 void loopBASIC()
@@ -1102,9 +1096,7 @@ BASICRunState execBASIC(bool triggerRunExec)
   unsigned char *newEnd;
   unsigned char linelen;
   boolean isDigital;
-#ifdef ENABLE_DISPLAY
   boolean isBgColor;
-#endif
 #ifdef ENABLE_PORTEXPANDER
   boolean isOnPortExpander = false;
 #endif
@@ -1185,7 +1177,7 @@ BASICRunState execBASIC(bool triggerRunExec)
   }
 
   if(txtpos[sizeof(LINENUM)+sizeof(char)] == NL) // If the line has no txt, it was just a delete
-    return Run;
+    return Idle;
 
 
 
@@ -1225,15 +1217,15 @@ BASICRunState execBASIC(bool triggerRunExec)
     }
     program_end = newEnd;
   }
-  return Run;
+  return Idle;
 
 unimplemented:
   printmsg(unimplimentedmsg);
-  return Run;
+  return Idle;
 
 qhow:	
   printmsg(howmsg);
-  return Run;
+  return Idle;
 
 qwhat:	
   printmsgNoNL(whatmsg);
@@ -1247,7 +1239,7 @@ qwhat:
     *txtpos = tmp;
   }
   line_terminator();
-  return Run;
+  return Idle;
 
 qsorry:	
   printmsg(sorrymsg);
@@ -1264,7 +1256,7 @@ run_next_statement:
 direct: 
   txtpos = program_end+sizeof(LINENUM);
   if(*txtpos == NL)
-    return Run;
+    return Idle;
 
 interperateAtTxtpos:
   if(breakcheck())
@@ -1303,7 +1295,7 @@ interperateAtTxtpos:
     if(txtpos[0] != NL)
       goto qwhat;
     program_end = program_start;
-    return Run;
+    return Idle;
   case KW_RUN:
     current_line = program_start;
     goto execline;
@@ -1415,7 +1407,7 @@ interperateAtTxtpos:
 
 execnextline:
   if(current_line == NULL)		// Processing direct commands?
-    return Run;
+    return Idle;
   current_line +=	 current_line[sizeof(LINENUM)];
 
 execline:
@@ -2023,7 +2015,6 @@ tonegen:
   }
 #endif /* ENABLE_TONES */
 
-#ifdef ENABLE_DISPLAY
   scolor:
   {
 	  // SCOLOR color
@@ -2063,18 +2054,17 @@ tonegen:
 
 	  if (isBgColor)
 	  {
-		  display_bgcolor = color;
-      g_displayBuffer.setBgColor(color);
+		  //display_bgcolor = color;
+      g_displayBuffer.setBgColor(colorIdx % numColors);
 	  }
 	  else
 	  {
-		  display_fgcolor = color;
-      g_displayBuffer.setFgColor(color);
+		  //display_fgcolor = color;
+      g_displayBuffer.setFgColor(colorIdx % colorIdx);
 	  }
 
 	  goto run_next_statement;
   }
-#endif /* ENABLE_DISPLAY */
 }
 
 // returns 1 if the character is valid in a filename

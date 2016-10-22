@@ -1,15 +1,16 @@
 
 #include "DisplayBuffer.h"
+#include "ColorUtils.h"
+
+#define DEFAULT_CURSOR_COLOR 0xE6
 
 DisplayBuffer::DisplayBuffer(IDisplay *pDisplay) :
-    m_pOutputDisplay(pDisplay), m_cursor_x(0), m_cursor_y(0), m_displayNeedsRefresh(false)
+    m_pOutputDisplay(pDisplay), m_cursor_x(0), m_cursor_y(0),
+    m_cursorColor(DEFAULT_CURSOR_COLOR), m_displayNeedsRefresh(false)
 {
     memset(m_displayBuffer, ' ', sizeof(m_displayBuffer));
+    memset(m_colorBuffer, DEFAULT_CURSOR_COLOR, sizeof(m_colorBuffer)); // bg color 14, fg color 6
 }
-
-// TODO
-uint16_t textcolor = ST7735_WHITE;
-uint16_t textbgcolor = ST7735_BLUE;
 
 size_t DisplayBuffer::write(uint8_t c)
 {
@@ -31,18 +32,33 @@ size_t DisplayBuffer::write(uint8_t c, bool ignoreNewlines)
     else 
     {
         resolveCursor();
-        setChar(m_cursor_x, m_cursor_y, c, textcolor, textbgcolor);
+        setChar(m_cursor_x, m_cursor_y, c, m_cursorColor);
         m_cursor_x ++;
         resolveCursor();
     }
 }
 
-void DisplayBuffer::setChar(int16_t x, int16_t y, unsigned char c, uint16_t color, uint16_t bg)
+void DisplayBuffer::backspace()
 {
-    m_displayBuffer[y*NUM_CHAR_COLUMNS + x] = c;
+    if (m_cursor_x > 0)
+    {
+        m_cursor_x --;
+        setChar(m_cursor_x, m_cursor_y, ' ', m_cursorColor);
+    }
+}
+
+void DisplayBuffer::setChar(int16_t x, int16_t y, unsigned char c, uint8_t color)
+{
+    uint8_t displayIdx = y*NUM_CHAR_COLUMNS + x; 
+    m_displayBuffer[displayIdx] = c;
+    m_colorBuffer[displayIdx] = color;
     if(m_pOutputDisplay != NULL)
     {
-        m_pOutputDisplay->drawFastChar(x*CHAR_WIDTH, y*CHAR_HEIGHT, c, color, bg);
+        Serial.println((int)color, 16);
+        uint16_t fg = lookupColor((color >> 4) & 0x0F);
+        uint16_t bg = lookupColor(color & 0x0F);
+
+        m_pOutputDisplay->drawFastChar(x*CHAR_WIDTH, y*CHAR_HEIGHT, c, fg, bg);
     }
 }
 
@@ -72,5 +88,12 @@ void DisplayBuffer::scrollBufferUp()
     // Blank out the last line after scrolling
     memset(pC, ' ', NUM_CHAR_COLUMNS);
 
-    m_displayNeedsRefresh = true;
+    if (m_pOutputDisplay != NULL)
+    {
+        m_pOutputDisplay->drawFastCharBuffer((unsigned char*)m_displayBuffer, m_colorBuffer);
+    }
+    else
+    {
+        m_displayNeedsRefresh = true;
+    }
 }

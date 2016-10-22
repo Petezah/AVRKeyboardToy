@@ -27,6 +27,8 @@ as well as Adafruit raw 1.8" TFT display
 #include "wiring_private.h"
 #include <SPI.h>
 
+#include "ColorUtils.h"
+
 inline uint16_t swapcolor(uint16_t x) { 
   return (x << 11) | (x & 0x07E0) | (x >> 11);
 }
@@ -546,14 +548,11 @@ void Adafruit_ST7735::drawFastChar(int16_t x, int16_t y, unsigned char c, uint16
 #endif
 }
 
-void Adafruit_ST7735::drawFastCharBuffer(unsigned char* buf, uint16_t color, uint16_t bg)
+void Adafruit_ST7735::drawFastCharBuffer(unsigned char* buf, uint8_t* colorBuf)
 {
   uint8_t xMax = CHAR_WIDTH * NUM_CHAR_COLUMNS;
   uint8_t yMax = CHAR_HEIGHT * NUM_CHAR_ROWS;
   setAddrWindow(0, 0, xMax - 1, yMax - 1); // whole display
-
-  uint8_t hi = color >> 8, lo = color;
-  uint8_t bghi = bg >> 8, bglo = bg;
 
 #if defined (SPI_HAS_TRANSACTION)
   SPI.beginTransaction(mySPISettings);
@@ -564,6 +563,7 @@ void Adafruit_ST7735::drawFastCharBuffer(unsigned char* buf, uint16_t color, uin
   uint8_t lineNum = -1;
   uint8_t charRow = 0;
   unsigned char *bufRow = buf;
+  uint8_t *colorBufRow = colorBuf;
   for(uint8_t y=0; y<yMax; ++y)
   {
     ++lineNum;
@@ -572,18 +572,25 @@ void Adafruit_ST7735::drawFastCharBuffer(unsigned char* buf, uint16_t color, uin
       lineNum = 0;
       ++charRow;
       bufRow += NUM_CHAR_COLUMNS;
+      colorBufRow += NUM_CHAR_COLUMNS;
     }
 
     unsigned char *bufCol = bufRow;
-    for(uint8_t charColumn=0; charColumn<NUM_CHAR_COLUMNS; ++charColumn, ++bufCol)
+    uint8_t *colorBufCol = colorBufRow;
+    for(uint8_t charColumn=0; charColumn<NUM_CHAR_COLUMNS; ++charColumn, ++bufCol, ++colorBufCol)
     {
       unsigned char c = *bufCol;
+      uint8_t color = *colorBufCol;
+      uint16_t fgColor = lookupColor((color >> 4) & 0x0F);
+      uint16_t bgColor = lookupColor(color & 0x0F);
+      uint8_t fghi = fgColor >> 8, fglo = fgColor;
+      uint8_t bghi = bgColor >> 8, bglo = bgColor;
       uint8_t line = pgm_read_byte(getFont()+(c*8)+lineNum);
       for(int8_t j=0; j<8; j++, line <<= 1) {
         if(line & 0x80) {
           // Draw FG pixel
-          spiwrite(hi);
-          spiwrite(lo);
+          spiwrite(fghi);
+          spiwrite(fglo);
         } else {
           // Draw BG pixel
           spiwrite(bghi);
