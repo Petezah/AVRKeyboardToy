@@ -100,16 +100,16 @@ void DisplayBuffer::scrollBufferUp()
 
 void DisplayBuffer::setBgColor(uint8_t color) 
 {
-    Serial.println((int)m_cursorColor, 16);
+    //Serial.println((int)m_cursorColor, 16);
     m_cursorColor = (m_cursorColor & 0xF0) | (color & 0x0F); 
-    Serial.println((int)m_cursorColor, 16);
+    //Serial.println((int)m_cursorColor, 16);
 }
 
 void DisplayBuffer::setFgColor(uint8_t color)
 {
-    Serial.println((int)m_cursorColor, 16);
+    //Serial.println((int)m_cursorColor, 16);
     m_cursorColor = (m_cursorColor & 0x0F) | ((color << 4) & 0xF0); 
-    Serial.println((int)m_cursorColor, 16);
+    //Serial.println((int)m_cursorColor, 16);
 }
 
 void DisplayBuffer::getColors(uint16_t* bg, uint16_t* fg)
