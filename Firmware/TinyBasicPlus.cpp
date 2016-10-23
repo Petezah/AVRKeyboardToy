@@ -1053,9 +1053,6 @@ static short int expression(void)
   return 0;
 }
 
-// Pass 8-bit (each) R,G,B, get back 16-bit packed color
-uint16_t color565(uint8_t r, uint8_t g, uint8_t b);
-
 /***************************************************************************/
 void loopBASIC()
 {
@@ -2028,39 +2025,15 @@ tonegen:
 
 	  ignore_blanks();
 
-	  // C64 style color table
-	  const char numColors = 16;
-	  uint8_t colors[numColors * 3] =
-	  {
-		  0x00, 0x00, 0x00, //Black
-		  0xFF, 0xFF, 0xFF, //White
-		  0x88, 0x00, 0x00, //Red
-		  0xAA, 0xFF, 0xEE, //Cyan
-		  0xCC, 0x44, 0xCC, //Violet
-		  0x00, 0xCC, 0x55, //Green
-		  0x00, 0x00, 0xAA, //Blue
-		  0xEE, 0xEE, 0x77, //Yellow
-		  0xDD, 0x88, 0x55, //Orange
-		  0x66, 0x44, 0x00, //Brown
-		  0xFF, 0x77, 0x77, //Lightred
-		  0x33, 0x33, 0x33, //DarkGray
-		  0x77, 0x77, 0x77, //MedGray
-		  0xAA, 0xFF, 0x66, //Lightgreen
-		  0x00, 0x88, 0xFF, //Lightblue
-		  0xBB, 0xBB, 0xBB  //Lightgray
-	  };
-	  uint8_t* pColor = colors + ((colorIdx % numColors) * 3);
-	  uint16_t color = color565(pColor[0], pColor[1], pColor[2]);
-
 	  if (isBgColor)
 	  {
 		  //display_bgcolor = color;
-      g_displayBuffer.setBgColor(colorIdx % numColors);
+      g_displayBuffer.setBgColor(colorIdx);
 	  }
 	  else
 	  {
 		  //display_fgcolor = color;
-      g_displayBuffer.setFgColor(colorIdx % colorIdx);
+      g_displayBuffer.setFgColor(colorIdx);
 	  }
 
 	  goto run_next_statement;
