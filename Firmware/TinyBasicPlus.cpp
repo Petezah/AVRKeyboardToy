@@ -1386,15 +1386,12 @@ interperateAtTxtpos:
     goto echain;
 #endif
 #endif
-
-#ifdef ENABLE_DISPLAY
   case KW_BGCOLOR:
 	  isBgColor = true;
 	  goto scolor;
   case KW_FGCOLOR:
 	  isBgColor = false;
 	  goto scolor;
-#endif
 
   case KW_DEFAULT:
     goto assignment;

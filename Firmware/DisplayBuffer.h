@@ -27,8 +27,8 @@ public:
     void moveCursorRight() { if (m_cursor_x < (NUM_CHAR_COLUMNS - 1)) m_cursor_x++; }
     void scrollBufferUp();
 
-    void setBgColor(uint8_t color) { m_cursorColor = (m_cursorColor & 0x0F) | ((color << 4) & 0xF0); }
-    void setFgColor(uint8_t color) { m_cursorColor = (m_cursorColor & 0xF0) | (color & 0x0F); }
+    void setBgColor(uint8_t color);
+    void setFgColor(uint8_t color);
     void getColors(uint16_t* bg, uint16_t* fg);
 
     char* GetBuffer() { return m_displayBuffer; }
