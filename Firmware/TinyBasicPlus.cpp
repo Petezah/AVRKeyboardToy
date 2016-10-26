@@ -225,9 +225,44 @@ extern DisplayBuffer g_displayBuffer;
 #define KEYBOARD_CLK 3
 
 PS2KeyAdvanced keyboard;
-#endif
+#endif //ENABLE_KEYBOARD
 
 bool keyboardIsActive = false;
+
+
+#include <SID.h>
+extern SID g_sid; // uses pin D9/PB1
+
+// SID TEST
+#define OFF 0
+#define SETTRIANGLE_1	4,0x11,5,0xBB,6,0xAA,
+#define C4_1	1,0x11,0,0x25,
+#define CONTROLREG 4 // SID control register address
+
+#define CHANNEL1  0
+#define CHANNEL2  7
+#define CHANNEL3  14
+
+void setwaveform_triangle(uint8_t channel)
+{
+  uint8_t dataset[]={ SETTRIANGLE_1 C4_1 0xFF };
+  //  uint8_t dataset[]={SETNOISE_1 C4_1 0xFF};
+  uint8_t n=0; 
+  
+  while(dataset[n]!=0xFF) 
+  {
+     g_sid.set_register(channel+dataset[n], dataset[n+1]); 
+     // register address, register content
+     n+=2;
+  }
+}
+
+// pitch=16.77*frequency
+void set_frequency(uint16_t pitch,uint8_t channel)
+{
+    g_sid.set_register(channel, pitch&0xFF); // low register adress
+    g_sid.set_register(channel+1, pitch>>8); // high register adress
+}
 
 #ifdef ENABLE_PORTEXPANDER
 #include <Adafruit_MCP23017.h>
@@ -252,7 +287,7 @@ Adafruit_MCP23017 mcp;
 #endif
 #endif /* ARDUINO */
 // TODO: more accurately determine free RAM
-#define kRamSize  600 //(RAMEND - 1160 - kRamFileIO - kRamTones - kRamDisplay) 
+#define kRamSize  500 //(RAMEND - 1160 - kRamFileIO - kRamTones - kRamDisplay) 
 
 #ifndef ARDUINO
 // Not arduino setup
@@ -1968,7 +2003,8 @@ rseed:
 
 #ifdef ENABLE_TONES
 tonestop:
-  noTone( kPiezoPin );
+  // TODO
+  //noTone( kPiezoPin );
   goto run_next_statement;
 
 tonegen:
@@ -2000,7 +2036,9 @@ tonegen:
     if( freq == 0 || duration == 0 )
       goto tonestop;
 
-    tone( kPiezoPin, freq, duration );
+    //tone( kPiezoPin, freq, duration );
+    setwaveform_triangle(CHANNEL1);
+    set_frequency(freq, CHANNEL1);
     if( alsoWait ) {
       delay( duration );
       alsoWait = false;
@@ -2169,7 +2207,8 @@ void setupBASIC()
 #endif /* ENABLE_EEPROM */
 
 #ifdef ENABLE_TONES
-  noTone( kPiezoPin );
+  // TODO
+  //noTone( kPiezoPin );
 #endif
 #endif
 

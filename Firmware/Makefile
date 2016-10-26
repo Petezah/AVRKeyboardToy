@@ -53,9 +53,10 @@ SRC = $(ARDUINO)/wiring.c $(ARDUINO)/wiring_digital.c $(ARDUINO)/wiring_analog.c
 CXXSRC = $(TARGET).cpp main.cpp TinyBasicPlus.cpp KeyboardUtil.cpp DisplayBuffer.cpp ColorUtils.cpp \
 	Adafruit_GFX.cpp Adafruit_ST7735.cpp \
 	Adafruit_MCP23017.cpp \
+	SID.cpp \
 	PS2KeyAdvanced.cpp \
 	$(ARDUINO)/abi.cpp \
-	$(ARDUINO)/WMath.cpp $(ARDUINO)/Print.cpp $(ARDUINO)/Tone.cpp \
+	$(ARDUINO)/WMath.cpp $(ARDUINO)/Print.cpp \
 	$(ARDUINO)/HardwareSerial.cpp $(ARDUINO)/HardwareSerial0.cpp \
 	$(ARDUINO)/SPI.cpp $(ARDUINO)/Wire.cpp 
 MCU = atmega328p

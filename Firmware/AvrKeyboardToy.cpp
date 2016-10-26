@@ -10,13 +10,15 @@
 #include <PS2KeyAdvanced.h>
 #include "KeyboardUtil.h"
 
+#include <SID.h>
+
 // Keyboard Pins
 #define KEYBOARD_DATA 4
 #define KEYBOARD_CLK 3
 
 // Display utilities
 #define TFT_CS     10
-#define TFT_RST    9  
+#define TFT_RST    17 // PC3=D17=A3  
 #define TFT_DC     8
 
 #define TFT_EN     14
@@ -28,6 +30,8 @@
 #define TFT_MOSI 11   
 ////
 
+// NB: SID speaker uses D9/PB1
+
 // Special, serial-only commands
 #define CURS_UP CTRLW
 #define CURS_LF CTRLA
@@ -38,6 +42,7 @@
 Adafruit_ST7735 g_display(TFT_CS, TFT_DC, TFT_RST);
 DisplayBuffer g_displayBuffer(&g_display);
 PS2KeyAdvanced g_keyboard;
+SID g_sid; // uses pin D9/PB1
 
 void displayTestPattern() 
 {
@@ -69,6 +74,7 @@ void AvrKeyboardToy::Init()
     // TODO: our own init
     InitDisplay();
     InitInput();
+    g_sid.begin();
 
     //displayTestPattern();
 
