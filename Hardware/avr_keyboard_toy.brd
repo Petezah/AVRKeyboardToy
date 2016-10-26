@@ -1749,16 +1749,29 @@ Please make sure your boards conform to these design rules.</description>
 </pass>
 </autorouter>
 <elements>
-<element name="ISP1" library="adafruit" package="AVRISP" value="AVRISP-6" x="33.655" y="17.78" rot="MR270"/>
-<element name="LED1" library="adafruit" package="CHIPLED_1206" value="" x="33.655" y="8.89" rot="R270"/>
+<element name="ISP1" library="adafruit" package="AVRISP" value="AVRISP-6" x="33.655" y="17.78" smashed="yes" rot="MR270">
+<attribute name="NAME" x="32.258" y="13.843" size="1.27" layer="26" rot="MR0"/>
+</element>
+<element name="LED1" library="adafruit" package="CHIPLED_1206" value="" x="33.655" y="8.89" smashed="yes" rot="R270">
+<attribute name="NAME" x="32.385" y="6.35" size="1.27" layer="25"/>
+<attribute name="VALUE" x="32.385" y="6.35" size="1.27" layer="27"/>
+</element>
 <element name="PS/2" library="SparkFun-Connectors" package="1X04" value="" x="20.32" y="20.32" rot="MR90">
 <attribute name="PROD_ID" value="CONN-09696" x="20.32" y="20.32" size="1.778" layer="28" rot="MR90" display="off"/>
 </element>
-<element name="R1" library="adafruit" package="R1206" value="120" x="33.655" y="11.43" rot="R180"/>
+<element name="R1" library="adafruit" package="R1206" value="120" x="33.655" y="11.43" smashed="yes" rot="R180">
+<attribute name="NAME" x="36.957" y="14.097" size="1.27" layer="25" rot="R180"/>
+<attribute name="VALUE" x="35.052" y="13.843" size="1.27" layer="27" rot="R180"/>
+</element>
 <element name="R3" library="adafruit" package="R1206" value="10k" x="20.32" y="3.81" rot="R90"/>
-<element name="SP1" library="adafruit" package="PS12" value="SPEAKER/PS12" x="27.94" y="13.335" rot="R270"/>
-<element name="UART" library="SparkFun-Connectors" package="1X04" value="" x="20.32" y="8.89" rot="MR90">
+<element name="SP1" library="adafruit" package="PS12" value="SPEAKER/PS12" x="27.94" y="13.335" smashed="yes" rot="R270">
+<attribute name="NAME" x="31.115" y="17.145" size="1.27" layer="25" ratio="10" rot="R270"/>
+<attribute name="VALUE" x="24.13" y="17.2212" size="1.27" layer="27" ratio="10" rot="R270"/>
+</element>
+<element name="UART" library="SparkFun-Connectors" package="1X04" value="" x="20.32" y="8.89" smashed="yes" rot="MR90">
 <attribute name="PROD_ID" value="CONN-09696" x="20.32" y="8.89" size="1.778" layer="28" rot="MR90" display="off"/>
+<attribute name="NAME" x="22.1488" y="10.0838" size="1.27" layer="26" ratio="10" rot="MR90"/>
+<attribute name="VALUE" x="17.145" y="7.62" size="1.27" layer="28" rot="MR90"/>
 </element>
 <element name="XTAL1" library="SparkFun-FreqCtrl" package="RESONATOR-PTH" value="" x="26.67" y="36.195" rot="R180"/>
 <element name="U$2" library="petezah" package="LOGO_SM" value="" x="31.115" y="18.415" rot="MR0"/>
@@ -1773,7 +1786,10 @@ Please make sure your boards conform to these design rules.</description>
 <element name="J1" library="Seeed-OPL-Connector" package="H16-2.54" value="TFT" x="38.735" y="23.495" rot="R180">
 <attribute name="MPN" value="F185-1116A0BSYA1" x="38.735" y="23.495" size="1.778" layer="27" rot="R180" display="off"/>
 </element>
-<element name="SW1" library="adafruit" package="EVQ-Q2" value="SPST_TACT-EVQQ2" x="26.67" y="3.81"/>
+<element name="SW1" library="adafruit" package="EVQ-Q2" value="SPST_TACT-EVQQ2" x="26.67" y="3.81" smashed="yes">
+<attribute name="NAME" x="30.655" y="0.96" size="1.27" layer="25"/>
+<attribute name="VALUE" x="23.47" y="-0.99" size="1.27" layer="27"/>
+</element>
 <element name="J2" library="Seeed-Connector -2016" package="H4-2.54" value="I2C" x="20.32" y="36.195" rot="MR0">
 <attribute name="MPN" value="F185-1104A1BSYA1" x="20.32" y="36.195" size="1.778" layer="28" rot="MR0" display="off"/>
 </element>
