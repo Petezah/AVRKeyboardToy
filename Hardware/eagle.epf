@@ -10,7 +10,7 @@ AutoSaveProject=1
 
 [Win_1]
 Type="Control Panel"
-Loc="-13 -13 2722 1685"
+Loc="0 0 2735 1698"
 State=1
 Number=0
 
