@@ -16,12 +16,27 @@
 #define KEYBOARD_DATA 4
 #define KEYBOARD_CLK 3
 
+#if defined(AVR_KEYBOARD_TOY_RELEASE)
+
 // Display utilities
 #define TFT_CS     10
 #define TFT_RST    17 // PC3=D17=A3  
 #define TFT_DC     8
 
 #define TFT_EN     14
+
+#elif defined(AVR_KEYBOARD_TOY_TEST)
+
+// Display utilities
+#define TFT_CS     17 // PC3=D17=A3  
+#define TFT_RST    2  // PD2 
+#define TFT_DC     8  
+
+#define TFT_EN     14
+
+#else
+#error No board type was defined!  Must define either AVR_KEYBOARD_TOY_RELEASE or AVR_KEYBOARD_TOY_TEST!
+#endif
 
 //TEMP: When I get SD cooperating with TFT, I will move this
 #define TFT_SD_EN  15
@@ -38,6 +53,13 @@
 #define CURS_DN CTRLS
 #define CURS_RT CTRLD
 //
+
+// String table
+static const char VERSION_STRING[]    PROGMEM = "AvrKeyboardToy v"AVRKEYTOY_VERSION_STRING;
+static const char FOUND_KEYBOARD[]    PROGMEM = "Found keyboard!  Enabling keyboard for input";
+static const char NO_KEYBOARD_FOUND[] PROGMEM = "No keyboard was found.  Enabling UART serial input";
+static const char EXECUTING_PROMPT[]  PROGMEM = "Executing: ";
+///////////////
     
 Adafruit_ST7735 g_display(TFT_CS, TFT_DC, TFT_RST);
 DisplayBuffer g_displayBuffer(&g_display);
@@ -56,6 +78,14 @@ void displayTestPattern()
     g_displayBuffer.GetBuffer()[0] = 65;
 }
 
+void simpleDisplayTest()
+{
+    g_display.fillScreen(ST7735_BLACK);
+    g_display.println("This is a test");
+    g_display.println("This is another test");
+    while(1);
+}
+
 AvrKeyboardToy::AvrKeyboardToy() :
     m_cursorX(0), m_cursorY(0), m_cursorVisible(true), m_lastCursorMillis(0),
     m_keyboardIsActive(false),
@@ -69,7 +99,7 @@ void AvrKeyboardToy::Init()
     init();
 
     Serial.begin(9600);
-    Serial.println(F("AvrKeyboardToy v"AVRKEYTOY_VERSION_STRING));
+    OutputString(VERSION_STRING, true);
 
     // TODO: our own init
     InitDisplay();
@@ -77,13 +107,14 @@ void AvrKeyboardToy::Init()
     g_sid.begin();
 
     //displayTestPattern();
+    //simpleDisplayTest();
 
     RefreshDisplay(false);
 }
 
 void AvrKeyboardToy::InitDisplay()
 {
-    g_display.initR(INITR_BLACKTAB);  // You will need to do this in every sketch
+    g_display.initR(INITR_BLACKTAB);
     g_display.setRotation(2); // 180* rotation
 
     // Power on the display
@@ -93,18 +124,18 @@ void AvrKeyboardToy::InitDisplay()
 
 void AvrKeyboardToy::InitInput()
 {
-    g_keyboard.begin(KEYBOARD_DATA, KEYBOARD_CLK);
+    g_keyboard.begin(KEYBOARD_DATA);
     g_keyboard.echo();  // ping keyboard to see if there
     delay( 6 );
     if( (g_keyboard.read() & 0xFF) == PS2_KEY_ECHO )
     {
         m_keyboardIsActive = true;
-        Serial.println(F("Found keyboard!  Enabling keyboard for input"));
+        OutputString(FOUND_KEYBOARD, true);
     }
     else
     {
         m_keyboardIsActive = false;
-        Serial.println(F("No keyboard was found.  Enabling UART serial input"));
+        OutputString(NO_KEYBOARD_FOUND, true);
     } 
 }
 
@@ -130,9 +161,12 @@ void AvrKeyboardToy::UpdateInput()
     // Only try to read the keyboard if it is active
     if (m_keyboardIsActive)
     {
+        //Serial.print('.');
         if(g_keyboard.available())
         {
             code = g_keyboard.read();
+            //Serial.print("Got code ");
+            //Serial.println(code);
             gotChar = TranslateKey(code, &c); // if it is printable, we will print it (gotChar)
             if(!gotChar) // if it is not printable, we may be able to do something anyway
             {
@@ -184,6 +218,7 @@ void AvrKeyboardToy::UpdateSerial()
 bool AvrKeyboardToy::UpdateCursor()
 {
     uint16_t bg,fg;
+    bool result = false;
     g_displayBuffer.getColors(&bg, &fg);
 
     int16_t bufX = g_displayBuffer.getCursorX();
@@ -203,12 +238,11 @@ bool AvrKeyboardToy::UpdateCursor()
     }
 
     unsigned long cursorMillis = millis();
-    bool result = false;
 	if ((cursorMillis - m_lastCursorMillis) > 1000)
 	{
 	  m_lastCursorMillis = cursorMillis;
 	  m_cursorVisible = m_cursorVisible ? false : true;
-      result = !m_cursorVisible;
+      //result = !m_cursorVisible; // TODO: this is not the right place to signal a refresh
 	}
     pC = g_displayBuffer.GetBuffer() + m_cursorY * NUM_CHAR_COLUMNS + m_cursorX;
     g_display.drawFastChar(
@@ -363,9 +397,20 @@ void AvrKeyboardToy::PerformLineTermination()
     OutputChar(CR);
 
     // Execute line
-    Serial.print(F("Executing: "));
+    OutputString(EXECUTING_PROMPT);
     Serial.println(pExecCmd);
     
     injectln(pExecCmd);
     m_interpreterState = Run;
 }
+
+void AvrKeyboardToy::OutputString(const char* msg, bool newline)
+{
+    while (1)
+     {
+        unsigned char c = pgm_read_byte(msg++);
+        if (c == 0) break;
+        if (!Serial.write(c)) break;
+  }
+}
+

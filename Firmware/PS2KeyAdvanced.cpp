@@ -151,6 +151,7 @@ const uint8_t control_flags[] = {
                 };
 
 // Private Variables
+volatile bool _interruptAttached = false;
 volatile uint8_t _ps2mode;          /* _ps2mode contains
     _PS2_BUSY      bit 7 = busy until all expected bytes RX/TX
     _TX_MODE       bit 6 = direction 1 = TX, 0 = RX (default)
@@ -205,8 +206,10 @@ uint8_t PS2_keystatus;        // current CAPS etc status for top byte
    To receive 11 bits - start 8 data, ODD parity, stop
    To send data calls send_bit()
    Interrupt every falling incoming clock edge from keyboard */
-void ps2interrupt( void )
+ISR(INT1_vect) // void ps2interrupt( void )
 {
+if(!_interruptAttached) return;
+
 if( _ps2mode & _TX_MODE )
   send_bit();
 else
@@ -478,7 +481,7 @@ delayMicroseconds( 10 );
 #if defined(ARDUINO_ARCH_SAM)
 // STOP interrupt handler as Due etc. a lot faster than Uno/Mega
 // Setting pin output low will cause interrupt before ready
-detachInterrupt( digitalPinToInterrupt( PS2_IrqPin ) );
+detachInterrupt();
 #endif
 // set Clock LOW
 digitalWrite( PS2_IrqPin, LOW );
@@ -490,7 +493,7 @@ digitalWrite( PS2_DataPin, LOW );
 pininput( PS2_IrqPin );
 #if defined(ARDUINO_ARCH_SAM)
 // Restart interrupt handler as Due etc. a lot faster than Uno/Mega
-attachInterrupt( digitalPinToInterrupt( PS2_IrqPin ), ps2interrupt, FALLING );
+attachInterrupt();
 //  wait clock interrupt to send data
 #endif
 }
@@ -981,18 +984,35 @@ PS2KeyAdvanced::PS2KeyAdvanced()
 
 
 /* instantiate class for keyboard  */
-void PS2KeyAdvanced::begin( uint8_t data_pin, uint8_t irq_pin )
+void PS2KeyAdvanced::begin( uint8_t data_pin )
 {
 /* PS2 variables reset */
 ps2_reset( );
 
 PS2_DataPin = data_pin;
-PS2_IrqPin = irq_pin;
+PS2_IrqPin = 3; // use D3 (PD3), which is on Int1
 
 // initialize the pins
 pininput( PS2_IrqPin );            /* Setup Clock pin */
 pininput( PS2_DataPin );           /* Setup Data pin */
 
 // Start interrupt handler
-attachInterrupt( digitalPinToInterrupt( irq_pin ), ps2interrupt, FALLING );
+attachInterrupt();
+}
+
+// Set the state that the interrupt should run,
+// and set appropriate registers to activate the ISR
+void PS2KeyAdvanced::attachInterrupt()
+{
+  _interruptAttached = true;
+  EICRA = (EICRA & ~((1 << ISC10) | (1 << ISC11))) | (FALLING << ISC10);
+  EIMSK |= (1 << INT1);
+}
+
+// Set the state that the interrupt should not run,
+// and set appropriate registers to deactivate the ISR
+void PS2KeyAdvanced::detachInterrupt()
+{
+  _interruptAttached = false;
+  EIMSK &= ~(1 << INT1);
 }

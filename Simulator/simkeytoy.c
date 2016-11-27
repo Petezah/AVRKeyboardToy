@@ -209,7 +209,7 @@ main (int argc, char *argv[])
 
 	// ST7735 wired to the SPI bus, with the following additional pins:
 	// CS=10   -> PB2
-	// RST=9   -> PB1
+	// RST=17  -> PC3
 	// DC=8    -> PB0
 	// SCK=13  -> PB5
 	// MOSI=11 -> PB3
@@ -219,8 +219,8 @@ main (int argc, char *argv[])
 		.chip_select.pin = 2,
 		.data_instruction.port = 'B',
 		.data_instruction.pin = 0,
-		.reset.port = 'B',
-		.reset.pin = 1,
+		.reset.port = 'C',
+		.reset.pin = 3,
 	};
 
 	st7735_connect (&st7735, &wiring);

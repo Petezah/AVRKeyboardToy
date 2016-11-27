@@ -341,7 +341,7 @@ class PS2KeyAdvanced {
        setting the pin modes correctly and driving those needed to high.
        Sets default LOCK status (LEDs) to passed in value or default of all off
        The best place to call this method is in the setup routine.    */
-    void begin( uint8_t, uint8_t  );
+    void begin( uint8_t );
 
     /* Returns number of codes available or 0 for none */
     uint8_t available();
@@ -396,5 +396,9 @@ class PS2KeyAdvanced {
          default in keyboard is 1 = 0.5 second delay
         Returned data in keyboard buffer read as keys */
     int typematic( uint8_t , uint8_t );
+
+private:
+    void attachInterrupt();
+    void detachInterrupt();
 };
 #endif

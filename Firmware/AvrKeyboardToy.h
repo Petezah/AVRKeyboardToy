@@ -41,6 +41,8 @@ private:
     void OutputChar(char c);
     void PerformLineTermination();
 
+    void OutputString(const char* msg, bool newline = false);
+
     // cursor data
     int m_cursorX, m_cursorY;
     bool m_cursorVisible;

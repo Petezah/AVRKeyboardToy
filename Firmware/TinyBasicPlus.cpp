@@ -287,7 +287,7 @@ Adafruit_MCP23017 mcp;
 #endif
 #endif /* ARDUINO */
 // TODO: more accurately determine free RAM
-#define kRamSize  500 //(RAMEND - 1160 - kRamFileIO - kRamTones - kRamDisplay) 
+#define kRamSize  600 //(RAMEND - 1160 - kRamFileIO - kRamTones - kRamDisplay) 
 
 #ifndef ARDUINO
 // Not arduino setup

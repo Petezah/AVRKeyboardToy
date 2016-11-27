@@ -457,12 +457,12 @@ void Adafruit_GFX::write(uint8_t c) {
     } else if(c == '\r') {
       // skip em
     } else {
-      if(wrap && ((cursor_x + textsize * 6) >= _width)) { // Heading off edge?
+      if(wrap && ((cursor_x + textsize * 8) >= _width)) { // Heading off edge?
         cursor_x  = 0;            // Reset x to zero
         cursor_y += textsize * 8; // Advance y one line
       }
       drawChar(cursor_x, cursor_y, c, textcolor, textbgcolor, textsize);
-      cursor_x += textsize * 6;
+      cursor_x += textsize * 8;
     }
 
   } else { // Custom font
@@ -506,23 +506,23 @@ void Adafruit_GFX::drawChar(int16_t x, int16_t y, unsigned char c,
 
     if((x >= _width)            || // Clip right
        (y >= _height)           || // Clip bottom
-       ((x + 6 * size - 1) < 0) || // Clip left
+       ((x + 8 * size - 1) < 0) || // Clip left
        ((y + 8 * size - 1) < 0))   // Clip top
       return;
 
     if(!_cp437 && (c >= 176)) c++; // Handle 'classic' charset behavior
 
-    for(int8_t i=0; i<6; i++ ) {
+    for(int8_t i=0; i<8; i++ ) {
       uint8_t line;
-      if(i < 5) line = pgm_read_byte(font+(c*5)+i);
+      if(i < 8) line = pgm_read_byte(font+(c*8)+i);
       else      line = 0x0;
-      for(int8_t j=0; j<8; j++, line >>= 1) {
-        if(line & 0x1) {
-          if(size == 1) drawPixel(x+i, y+j, color);
-          else          fillRect(x+(i*size), y+(j*size), size, size, color);
+      for(int8_t j=0; j<8; j++, line <<= 1) {
+        if(line & 0x80) {
+          if(size == 1) drawPixel(x+j, y+i, color);
+          else          fillRect(x+(j*size), y+(i*size), size, size, color);
         } else if(bg != color) {
-          if(size == 1) drawPixel(x+i, y+j, bg);
-          else          fillRect(x+i*size, y+j*size, size, size, bg);
+          if(size == 1) drawPixel(x+j, y+i, bg);
+          else          fillRect(x+j*size, y+i*size, size, size, bg);
         }
       }
     }

@@ -49,18 +49,19 @@ PORT = COM3
 TARGET = AvrKeyboardToy
 ARDUINO = ./arduino
 SRC = $(ARDUINO)/wiring.c $(ARDUINO)/wiring_digital.c $(ARDUINO)/wiring_analog.c \
-	$(ARDUINO)/hooks.c $(ARDUINO)/WInterrupts.c $(ARDUINO)/utility/twi.c
+	$(ARDUINO)/hooks.c
 CXXSRC = $(TARGET).cpp main.cpp TinyBasicPlus.cpp KeyboardUtil.cpp DisplayBuffer.cpp ColorUtils.cpp \
 	Adafruit_GFX.cpp Adafruit_ST7735.cpp \
-	Adafruit_MCP23017.cpp \
 	SID.cpp \
 	PS2KeyAdvanced.cpp \
 	$(ARDUINO)/abi.cpp \
 	$(ARDUINO)/WMath.cpp $(ARDUINO)/Print.cpp \
 	$(ARDUINO)/HardwareSerial.cpp $(ARDUINO)/HardwareSerial0.cpp \
-	$(ARDUINO)/SPI.cpp $(ARDUINO)/Wire.cpp 
+	$(ARDUINO)/SPI.cpp 
 MCU = atmega328p
 F_CPU = 8000000L
+#BOARD_TYPE = AVR_KEYBOARD_TOY_RELEASE
+BOARD_TYPE = AVR_KEYBOARD_TOY_TEST
 FORMAT = ihex
 UPLOAD_RATE = 57600
 
@@ -76,8 +77,8 @@ DEBUG = dwarf-2
 OPT = s
 
 # Place -D or -U options here
-CDEFS = -DF_CPU=$(F_CPU) -DARDUINO=10608 -DARDUINO_ARCH_AVR
-CXXDEFS = -DF_CPU=$(F_CPU) -DARDUINO=10608 -DARDUINO_ARCH_AVR
+CDEFS = -DF_CPU=$(F_CPU) -DARDUINO=10608 -DARDUINO_ARCH_AVR -D$(BOARD_TYPE)
+CXXDEFS = -DF_CPU=$(F_CPU) -DARDUINO=10608 -DARDUINO_ARCH_AVR -D$(BOARD_TYPE)
 
 # Place -I options here
 CINCS = -I$(ARDUINO)
@@ -91,13 +92,13 @@ CXXINCS = -I$(ARDUINO)
 CSTANDARD = -std=gnu99
 CXXSTANDARD = -std=gnu++98
 CDEBUG = -g$(DEBUG)
-CWARN = -Wall # -Wstrict-prototypes
+CWARN = -Wall -Wextra -Wreturn-type # -Wstrict-prototypes
 CTUNING = -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums
 CSIZEOPT = -ffunction-sections -fdata-sections # -flto -fno-fat-lto-objects
 CXXSIZEOPT = $(CSIZEOPT)
 # CEXTRA = -Wa,-adhlns=$(<:.c=.lst)
-CXXFIXSTATICS = -fno-threadsafe-statics # use with caution
-CXXEXTRA = -fpermissive -fno-exceptions # -flto
+# CXXFIXSTATICS = -fno-threadsafe-statics # use with caution
+CXXEXTRA = -fno-exceptions # -fpermissive # -flto
 
 LDSIZEOPT = -Wl,-gc-sections
 
@@ -142,10 +143,13 @@ all: build
 
 # Use the top one if you need the eep file
 #build: elf hex eep symlink elfsize
-build: elf hex symlink elfsize
+build: elf hex symlink elfsizeavr elfsize
 
 elfsize: elf
 	$(SIZE) $(TARGET).elf
+
+elfsizeavr: elf
+	$(SIZE) --format=avr --mcu=$(MCU) $(TARGET).elf
 
 hexsize: hex
 	$(SIZE) $(TARGET).hex

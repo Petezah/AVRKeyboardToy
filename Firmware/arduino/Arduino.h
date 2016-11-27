@@ -29,6 +29,12 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
+// Workaround for http://gcc.gnu.org/bugzilla/show_bug.cgi?id=34734
+#ifdef PROGMEM
+#undef PROGMEM
+#define PROGMEM __attribute__((section(".progmem.data")))
+#endif
+
 #include "binary.h"
 
 #ifdef __cplusplus
