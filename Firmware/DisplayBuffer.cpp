@@ -49,7 +49,7 @@ void DisplayBuffer::backspace()
 
 void DisplayBuffer::setChar(int16_t x, int16_t y, unsigned char c, uint8_t color)
 {
-    uint8_t displayIdx = y*NUM_CHAR_COLUMNS + x; 
+    uint16_t displayIdx = y*NUM_CHAR_COLUMNS + x; 
     m_displayBuffer[displayIdx] = c;
     m_colorBuffer[displayIdx] = color;
     if(m_pOutputDisplay != NULL)
@@ -80,13 +80,16 @@ void DisplayBuffer::resolveCursor()
 void DisplayBuffer::scrollBufferUp()
 {
     char *pC = m_displayBuffer;
-    for (uint16_t y=0; y<NUM_CHAR_ROWS-1; ++y, pC += NUM_CHAR_COLUMNS)
+    uint8_t *pCol = m_colorBuffer;
+    for (uint16_t y=0; y<NUM_CHAR_ROWS-1; ++y, pC += NUM_CHAR_COLUMNS, pCol += NUM_CHAR_COLUMNS)
     {
         memcpy(pC, pC + NUM_CHAR_COLUMNS, NUM_CHAR_COLUMNS);
+        memcpy(pCol, pCol + NUM_CHAR_COLUMNS, NUM_CHAR_COLUMNS);
     }
     
     // Blank out the last line after scrolling
     memset(pC, ' ', NUM_CHAR_COLUMNS);
+    memset(pCol, m_cursorColor, NUM_CHAR_COLUMNS);
 
     if (m_pOutputDisplay != NULL)
     {
