@@ -98,6 +98,18 @@ void DisplayBuffer::scrollBufferUp()
     }
 }
 
+void DisplayBuffer::RefreshDisplay()
+{
+    if (m_pOutputDisplay != NULL)
+    {
+        m_pOutputDisplay->drawFastCharBuffer((unsigned char*)m_displayBuffer, m_colorBuffer);
+    }
+    else
+    {
+        m_displayNeedsRefresh = true;
+    }
+}
+
 void DisplayBuffer::setBgColor(uint8_t color) 
 {
     //Serial.println((int)m_cursorColor, 16);

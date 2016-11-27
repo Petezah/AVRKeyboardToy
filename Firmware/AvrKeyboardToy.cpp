@@ -87,7 +87,7 @@ void simpleDisplayTest()
 }
 
 AvrKeyboardToy::AvrKeyboardToy() :
-    m_cursorX(0), m_cursorY(0), m_cursorVisible(true), m_lastCursorMillis(0),
+    m_cursorX(0), m_cursorY(0), m_cursorVisible(true), m_lastCursorMillis(0), m_displayNeedsRefresh(false),
     m_keyboardIsActive(false),
     m_interpreterState(InitStart)
 {
@@ -104,12 +104,12 @@ void AvrKeyboardToy::Init()
     // TODO: our own init
     InitDisplay();
     InitInput();
-    g_sid.begin();
+    //g_sid.begin();
 
     //displayTestPattern();
     //simpleDisplayTest();
 
-    RefreshDisplay(false);
+    m_displayNeedsRefresh = true;
 }
 
 void AvrKeyboardToy::InitDisplay()
@@ -143,12 +143,15 @@ void AvrKeyboardToy::Update()
 {
 	UpdateInterpreter();
     UpdateInput();
-    if(UpdateCursor())
-    {
-        RefreshDisplay(false);
-    }
+    UpdateCursor();
     UpdateSerial();
 
+    if(m_displayNeedsRefresh)
+    {
+        m_displayNeedsRefresh = false;
+        g_displayBuffer.RefreshDisplay();
+        //RefreshDisplay(false);
+    }
     //g_displayBuffer.scrollBufferUp();
 }
 

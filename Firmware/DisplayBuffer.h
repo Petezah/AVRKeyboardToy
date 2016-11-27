@@ -36,6 +36,7 @@ public:
     char* GetCursorLine() { return m_displayBuffer + (NUM_CHAR_COLUMNS * m_cursor_y); }
     bool DisplayNeedsRefresh() { return m_displayNeedsRefresh; }
     void ResetRefreshFlag() { m_displayNeedsRefresh = false; }
+    void RefreshDisplay();
 
 private:
     IDisplay *m_pOutputDisplay;

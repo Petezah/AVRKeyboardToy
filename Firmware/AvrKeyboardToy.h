@@ -47,6 +47,7 @@ private:
     int m_cursorX, m_cursorY;
     bool m_cursorVisible;
     unsigned long m_lastCursorMillis;
+    bool m_displayNeedsRefresh;
 
     // keyboard
     bool m_keyboardIsActive;
