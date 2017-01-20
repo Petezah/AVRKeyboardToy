@@ -610,7 +610,70 @@ void Adafruit_ST7735::fillScreen(uint16_t color) {
   fillRect(0, 0,  _width, _height, color);
 }
 
+void Adafruit_ST7735::drawFastCharBuffer2xCols(unsigned char* buf, uint8_t* colorBuf)
+{
+  uint8_t xCols = NUM_CHAR_COLUMNS * 2;
+  uint8_t xMax = CHAR_WIDTH * NUM_CHAR_COLUMNS;
+  uint8_t yMax = CHAR_HEIGHT * NUM_CHAR_ROWS / 2;
+  setAddrWindow(0, 0, xMax - 1, yMax - 1); // whole display
 
+#if defined (SPI_HAS_TRANSACTION)
+  SPI.beginTransaction(mySPISettings);
+#endif
+  *rsport |=  rspinmask;
+  *csport &= ~cspinmask;
+
+  uint8_t lineNum = -1;
+  uint8_t charRow = 0;
+  unsigned char *bufRow = buf;
+  uint8_t *colorBufRow = colorBuf;
+  for(uint8_t y=0; y<yMax; ++y)
+  {
+    ++lineNum;
+    if(lineNum >= CHAR_HEIGHT) 
+    {
+      lineNum = 0;
+      ++charRow;
+      bufRow += xCols;
+      colorBufRow += xCols;
+    }
+
+    unsigned char *bufCol = bufRow;
+    uint8_t *colorBufCol = colorBufRow;
+    for(uint8_t charColumn=0; charColumn<xCols; ++charColumn, ++bufCol, ++colorBufCol)
+    {
+      unsigned char c = *bufCol;
+      uint8_t color = *colorBufCol;
+      uint16_t fgColor = lookupColor((color >> 4) & 0x0F);
+      uint16_t bgColor = lookupColor(color & 0x0F);
+      uint16_t lColor = lookupLerpColor((color >> 4) & 0x0F, color & 0x0F);
+      uint8_t fghi = fgColor >> 8, fglo = fgColor;
+      uint8_t bghi = bgColor >> 8, bglo = bgColor;
+      uint8_t lhi = lColor >> 8, llo = lColor;
+      uint8_t line = pgm_read_byte(getFont()+(c*8)+lineNum);
+      for(int8_t j=0; j<4; j++, line <<= 2) {
+        if((line & 0x80) && (line & 0x40)) {
+          // Draw FG pixel
+          spiwrite(fghi);
+          spiwrite(fglo);
+        } else if(!(line & 0x80) && !(line & 0x40)) {
+          // Draw BG pixel
+          spiwrite(bghi);
+          spiwrite(bglo);
+        } else {
+          // Draw half-lerp pixel
+          spiwrite(lhi);
+          spiwrite(llo);
+        }
+      }
+    }
+  }
+
+  *csport |= cspinmask;
+#if defined (SPI_HAS_TRANSACTION)
+  SPI.endTransaction();
+#endif
+}
 
 // fill a rectangle
 void Adafruit_ST7735::fillRect(int16_t x, int16_t y, int16_t w, int16_t h,

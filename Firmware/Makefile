@@ -52,16 +52,16 @@ SRC = $(ARDUINO)/wiring.c $(ARDUINO)/wiring_digital.c $(ARDUINO)/wiring_analog.c
 	$(ARDUINO)/hooks.c
 CXXSRC = $(TARGET).cpp main.cpp TinyBasicPlus.cpp KeyboardUtil.cpp DisplayBuffer.cpp ColorUtils.cpp \
 	Adafruit_GFX.cpp Adafruit_ST7735.cpp \
-	SID.cpp \
 	PS2KeyAdvanced.cpp \
 	$(ARDUINO)/abi.cpp \
-	$(ARDUINO)/WMath.cpp $(ARDUINO)/Print.cpp \
+	$(ARDUINO)/WMath.cpp $(ARDUINO)/Print.cpp $(ARDUINO)/Tone.cpp \
 	$(ARDUINO)/HardwareSerial.cpp $(ARDUINO)/HardwareSerial0.cpp \
 	$(ARDUINO)/SPI.cpp 
 MCU = atmega328p
 F_CPU = 8000000L
+# Set below in board targets
 #BOARD_TYPE = AVR_KEYBOARD_TOY_RELEASE
-BOARD_TYPE = AVR_KEYBOARD_TOY_TEST
+#BOARD_TYPE = AVR_KEYBOARD_TOY_TEST
 FORMAT = ihex
 UPLOAD_RATE = 57600
 
@@ -137,13 +137,20 @@ ALL_CFLAGS = -mmcu=$(MCU) -I. $(CFLAGS)
 ALL_CXXFLAGS = -mmcu=$(MCU) -I. $(CXXFLAGS)
 ALL_ASFLAGS = -mmcu=$(MCU) -I. -x assembler-with-cpp $(ASFLAGS)
 
-
 # Default target.
-all: build
+all: export BOARD_TYPE = AVR_KEYBOARD_TOY_RELEASE
+all: boardtypeecho build
+
+# Board-specific targets
+alltest: export BOARD_TYPE = AVR_KEYBOARD_TOY_TEST
+alltest: boardtypeecho build
 
 # Use the top one if you need the eep file
 #build: elf hex eep symlink elfsize
 build: elf hex symlink elfsizeavr elfsize
+
+boardtypeecho:
+	echo "Building for boardtype: " $(BOARD_TYPE)
 
 elfsize: elf
 	$(SIZE) $(TARGET).elf
@@ -247,4 +254,4 @@ depend:
 		>> $(MAKEFILE); \
 	$(CC) -M -mmcu=$(MCU) $(CDEFS) $(CINCS) $(SRC) $(ASRC) >> $(MAKEFILE)
 
-.PHONY:	all build elf hex eep lss sym program coff extcoff clean depend
+.PHONY:	all alltest build elf hex eep lss sym program coff extcoff clean depend

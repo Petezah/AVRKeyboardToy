@@ -805,6 +805,13 @@ if( ( send_byte( PS2_KEY_IGNORE ) ) ) // wait data PS2_KC_ECHO
   send_next();                   // if idle start transmission
 }
 
+/* Send Disable command to keyboard */
+void PS2KeyAdvanced::disable( void )
+{
+send_byte( PS2_KC_DISABLE );             // send command
+if( ( send_byte( PS2_KEY_IGNORE ) ) ) // wait data PS2_KC_DISABLE
+  send_next();                   // if idle start transmission
+}
 
 /*  Get the ID used in keyboard
     returned data in keyboard buffer read as keys */

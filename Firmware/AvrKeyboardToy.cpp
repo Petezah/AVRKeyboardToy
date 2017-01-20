@@ -10,8 +10,6 @@
 #include <PS2KeyAdvanced.h>
 #include "KeyboardUtil.h"
 
-#include <SID.h>
-
 // Keyboard Pins
 #define KEYBOARD_DATA 4
 #define KEYBOARD_CLK 3
@@ -45,7 +43,7 @@
 #define TFT_MOSI 11   
 ////
 
-// NB: SID speaker uses D9/PB1
+// NB: Tone speaker uses D9/PB1
 
 // Special, serial-only commands
 #define CURS_UP CTRLW
@@ -64,7 +62,6 @@ static const char EXECUTING_PROMPT[]  PROGMEM = "Executing: ";
 Adafruit_ST7735 g_display(TFT_CS, TFT_DC, TFT_RST);
 DisplayBuffer g_displayBuffer(&g_display);
 PS2KeyAdvanced g_keyboard;
-SID g_sid; // uses pin D9/PB1
 
 void displayTestPattern() 
 {
@@ -104,8 +101,7 @@ void AvrKeyboardToy::Init()
     // TODO: our own init
     InitDisplay();
     InitInput();
-    //g_sid.begin();
-
+    
     //displayTestPattern();
     //simpleDisplayTest();
 
@@ -120,6 +116,7 @@ void AvrKeyboardToy::InitDisplay()
     // Power on the display
     pinMode(TFT_EN, OUTPUT);
     digitalWrite(TFT_EN, LOW); // TFT is enabled LOW
+    m_displayEnabled = true;
 }
 
 void AvrKeyboardToy::InitInput()
@@ -131,28 +128,50 @@ void AvrKeyboardToy::InitInput()
     {
         m_keyboardIsActive = true;
         OutputString(FOUND_KEYBOARD, true);
+
+        delay( 10 );
+        g_keyboard.resetKey();
     }
     else
     {
         m_keyboardIsActive = false;
         OutputString(NO_KEYBOARD_FOUND, true);
     } 
+
+    m_lastInputMillis = millis();
 }
 
 void AvrKeyboardToy::Update()
 {
-	UpdateInterpreter();
-    UpdateInput();
-    UpdateCursor();
-    UpdateSerial();
-
-    if(m_displayNeedsRefresh)
+    unsigned long currentMillis = millis();
+    unsigned long deltaMillis = currentMillis - m_lastInputMillis;
+    if (deltaMillis > 5000)
     {
-        m_displayNeedsRefresh = false;
-        g_displayBuffer.RefreshDisplay();
-        //RefreshDisplay(false);
+        Serial.println("Long input delay; putting display to sleep...");
+        m_displayEnabled = false;
+        digitalWrite(TFT_EN, HIGH); // TFT is enabled LOW
     }
-    //g_displayBuffer.scrollBufferUp();
+
+    if (m_displayEnabled)
+    {
+        UpdateInterpreter();
+        UpdateInput();
+        UpdateCursor();
+        UpdateSerial();
+
+        if(m_displayNeedsRefresh)
+        {
+            m_displayNeedsRefresh = false;
+            g_displayBuffer.RefreshDisplay();
+            //RefreshDisplay(false);
+        }
+        //g_displayBuffer.scrollBufferUp();
+    }
+    else
+    {
+        UpdateInput();
+        UpdateSerial();
+    }
 }
 
 void AvrKeyboardToy::UpdateInput()
@@ -336,8 +355,41 @@ void AvrKeyboardToy::DispatchSpecialKeyboardInput(char c, uint16_t code)
         case PS2_KEY_L_ARROW: g_displayBuffer.moveCursorLeft(); break;
         
         default:
+            if (scanCode >= PS2_KEY_F1 && scanCode <= PS2_KEY_F12)
+            {
+                DispatchFunctionKeyInput(shift, ctrl, alt, scanCode);
+            }
             break;
         }
+    }
+}
+
+void AvrKeyboardToy::DispatchFunctionKeyInput(bool shift, bool ctrl, bool alt, char scanCode)
+{
+    if (shift && !alt && !ctrl)
+    {
+        unsigned int freq = 300 * (scanCode - PS2_KEY_F1 + 1);
+        tone(/*kPiezoPin*/ 9, freq, 200);
+    }
+    else if (shift && alt && !ctrl)
+    {
+        short int idx = (scanCode - PS2_KEY_F1) % 8;
+        g_displayBuffer.setBgColor(idx);
+    }
+    else if (shift && !alt && ctrl)
+    {
+        short int idx = (scanCode - PS2_KEY_F1) % 8;
+        g_displayBuffer.setBgColor(idx + 8);
+    }
+    else if (!shift && alt && !ctrl)
+    {
+        short int idx = (scanCode - PS2_KEY_F1) % 8;
+        g_displayBuffer.setFgColor(idx);
+    }
+    else if (!shift && !alt && ctrl)
+    {
+        short int idx = (scanCode - PS2_KEY_F1) % 8;
+        g_displayBuffer.setFgColor(idx + 8);
     }
 }
 

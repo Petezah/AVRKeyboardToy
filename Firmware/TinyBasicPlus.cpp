@@ -98,9 +98,6 @@
 //#define ENABLE_FILEIO 1
 #undef ENABLE_FILEIO
 
-// Enable output via SPI display
-// #define ENABLE_DISPLAY
-
 // Enable input via PS/2 Keyboard
 //#define ENABLE_KEYBOARD
 
@@ -125,14 +122,14 @@
 // it adds 1.5k of usage as well.
 #define ENABLE_TONES 1
 //#undef ENABLE_TONES
-#define kPiezoPin 5
+#define kPiezoPin 9
 
 // we can use the EEProm to store a program during powerdown.  This is 
 // 1kbyte on the '328, and 512 bytes on the '168.  Enabling this here will
 // allow for this funcitonality to work.  Note that this only works on AVR
 // arduino.  Disable it for DUE/other devices.
-//#define ENABLE_EEPROM 1
-#undef ENABLE_EEPROM
+#define ENABLE_EEPROM 1
+//#undef ENABLE_EEPROM
 
 // Sometimes, we connect with a slower device as the console.
 // Set your console D0/D1 baud rate here (9600 baud default)
@@ -148,7 +145,6 @@
 
 // turn off EEProm
 #undef ENABLE_EEPROM
-#undef ENABLE_TONES
 
 #else
 // we're an AVR!
@@ -163,6 +159,7 @@
 int eepos = 0;
 #endif
 
+#include <avr/sleep.h>
 
 #ifdef ENABLE_FILEIO
 #include <SD.h>
@@ -178,48 +175,15 @@ int eepos = 0;
 File fp;
 #endif
 
-#ifdef ENABLE_DISPLAY
-#include <Adafruit_GFX.h>
-#include <Adafruit_ST7735.h>
-
-#define TFT_CS     10
-#define TFT_RST    9  
-#define TFT_DC     8
-
-#define TFT_EN     14
-
-//TEMP: When I get SD cooperating with TFT, I will move this
-#define TFT_SD_EN  15
-
-#define TFT_SCLK 13   
-#define TFT_MOSI 11   
-
-#define CHAR_WIDTH 6
-#define CHAR_HEIGHT 8
-#define DISPLAY_WIDTH 128
-#define DISPLAY_HEIGHT 160
-
-#define NUM_CHAR_COLUMNS (DISPLAY_WIDTH/CHAR_WIDTH)
-#define NUM_CHAR_ROWS    (DISPLAY_HEIGHT/CHAR_HEIGHT)
-
-Adafruit_ST7735 display = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
-
-uint16_t display_bgcolor = ST7735_BLUE;
-uint16_t display_fgcolor = ST7735_WHITE;
-
-char displayBuffer[NUM_CHAR_ROWS*NUM_CHAR_COLUMNS];
-#define kRamDisplay (sizeof(displayBuffer))
-#else
 #define kRamDisplay (0)
-#endif
-
 #include <DisplayBuffer.h>
 extern DisplayBuffer g_displayBuffer;
 
-#ifdef ENABLE_KEYBOARD
 #include <PS2KeyAdvanced.h>
 #include "KeyboardUtil.h"
+extern PS2KeyAdvanced g_keyboard;
 
+#ifdef ENABLE_KEYBOARD
 // Pins
 #define KEYBOARD_DATA 4
 #define KEYBOARD_CLK 3
@@ -228,41 +192,6 @@ PS2KeyAdvanced keyboard;
 #endif //ENABLE_KEYBOARD
 
 bool keyboardIsActive = false;
-
-
-#include <SID.h>
-extern SID g_sid; // uses pin D9/PB1
-
-// SID TEST
-#define OFF 0
-#define SETTRIANGLE_1	4,0x11,5,0xBB,6,0xAA,
-#define C4_1	1,0x11,0,0x25,
-#define CONTROLREG 4 // SID control register address
-
-#define CHANNEL1  0
-#define CHANNEL2  7
-#define CHANNEL3  14
-
-void setwaveform_triangle(uint8_t channel)
-{
-  uint8_t dataset[]={ SETTRIANGLE_1 C4_1 0xFF };
-  //  uint8_t dataset[]={SETNOISE_1 C4_1 0xFF};
-  uint8_t n=0; 
-  
-  while(dataset[n]!=0xFF) 
-  {
-     g_sid.set_register(channel+dataset[n], dataset[n+1]); 
-     // register address, register content
-     n+=2;
-  }
-}
-
-// pitch=16.77*frequency
-void set_frequency(uint16_t pitch,uint8_t channel)
-{
-    g_sid.set_register(channel, pitch&0xFF); // low register adress
-    g_sid.set_register(channel+1, pitch>>8); // high register adress
-}
 
 #ifdef ENABLE_PORTEXPANDER
 #include <Adafruit_MCP23017.h>
@@ -287,7 +216,7 @@ Adafruit_MCP23017 mcp;
 #endif
 #endif /* ARDUINO */
 // TODO: more accurately determine free RAM
-#define kRamSize  600 //(RAMEND - 1160 - kRamFileIO - kRamTones - kRamDisplay) 
+#define kRamSize  700 //(RAMEND - 1160 - kRamFileIO - kRamTones - kRamDisplay) 
 
 #ifndef ARDUINO
 // Not arduino setup
@@ -394,6 +323,7 @@ static const unsigned char keywords[] PROGMEM = {
   'E','N','D'+0x80,
   'R','S','E','E','D'+0x80,
   'C','H','A','I','N'+0x80,
+  'S','L','E','E','P'+0x80,
 #ifdef ENABLE_TONES
   'T','O','N','E','W'+0x80,
   'T','O','N','E'+0x80,
@@ -436,6 +366,7 @@ enum {
   KW_END,
   KW_RSEED,
   KW_CHAIN,
+  KW_SLEEP,
 #ifdef ENABLE_TONES
   KW_TONEW, KW_TONE, KW_NOTONE,
 #endif
@@ -549,17 +480,19 @@ static const unsigned char initmsg[]          PROGMEM = "TinyBasic Plus " kVersi
 static const unsigned char memorymsg[]        PROGMEM = " bytes free.";
 #ifdef ARDUINO
 #ifdef ENABLE_EEPROM
-static const unsigned char eeprommsg[]        PROGMEM = " EEProm bytes total.";
-static const unsigned char eepromamsg[]       PROGMEM = " EEProm bytes available.";
+static const unsigned char eeprommsg[]        PROGMEM = " EEProm\nbytes total.";
+static const unsigned char eepromamsg[]       PROGMEM = " EEProm\nbytes available.";
 #endif
 #endif
 static const unsigned char breakmsg[]         PROGMEM = "break!";
 static const unsigned char unimplimentedmsg[] PROGMEM = "Unimplemented";
 static const unsigned char backspacemsg[]     PROGMEM = "\b \b";
 static const unsigned char indentmsg[]        PROGMEM = "    ";
+#ifdef ENABLE_FILEIO
 static const unsigned char sderrormsg[]       PROGMEM = "SD card error.";
 static const unsigned char sdfilemsg[]        PROGMEM = "SD file error.";
 static const unsigned char dirextmsg[]        PROGMEM = "(dir)";
+#endif
 static const unsigned char slashmsg[]         PROGMEM = "/";
 static const unsigned char spacemsg[]         PROGMEM = " ";
 
@@ -778,19 +711,7 @@ static void getln(char prompt)
         break;
       txtpos--;
 
-	  outchar(c, true); // Suppress display
-#ifdef ENABLE_DISPLAY
-	  {
-		  int16_t xpos = display.getCursorX();
-		  int16_t ypos = display.getCursorY();
-		  if (xpos > 0)
-		  {
-			  xpos -= CHAR_WIDTH;
-			  display.fillRect(xpos, ypos, CHAR_WIDTH * 2, CHAR_HEIGHT, display_bgcolor); // Erase last char and cursor
-			  display.setCursor(xpos, ypos);
-		  }
-	  }
-#endif
+	    outchar(c, true); // Suppress display
       break;
     default:
       // We need to leave at least one space to allow us to shuffle the line into order
@@ -1319,6 +1240,8 @@ interperateAtTxtpos:
     goto list;
   case KW_CHAIN:
     goto chain;
+  case KW_SLEEP:
+    goto sleep;
   case KW_LOAD:
     goto load;
   case KW_MEM:
@@ -1899,6 +1822,21 @@ files:
   goto unimplemented;
 #endif // ENABLE_FILEIO
 
+sleep:
+    // Disable keyboard
+    g_keyboard.disable();
+
+    // Set full power-down sleep mode and go to sleep.
+    set_sleep_mode(SLEEP_MODE_PWR_DOWN);
+    sleep_mode();
+
+    // Chip is now asleep!
+
+    // Once awakened by the interrupt, execution resumes here.  Start by disabling
+    // sleep.
+    sleep_disable();
+    g_keyboard.resetKey();
+    goto run_next_statement;
 
 chain:
   runAfterLoad = true;
@@ -2003,8 +1941,7 @@ rseed:
 
 #ifdef ENABLE_TONES
 tonestop:
-  // TODO
-  //noTone( kPiezoPin );
+  noTone( kPiezoPin );
   goto run_next_statement;
 
 tonegen:
@@ -2036,9 +1973,7 @@ tonegen:
     if( freq == 0 || duration == 0 )
       goto tonestop;
 
-    //tone( kPiezoPin, freq, duration );
-    setwaveform_triangle(CHANNEL1);
-    set_frequency(freq, CHANNEL1);
+    tone( kPiezoPin, freq, duration );
     if( alsoWait ) {
       delay( duration );
       alsoWait = false;
@@ -2132,23 +2067,6 @@ void setupBASIC()
   // Serial is already open
   //Serial.begin(kConsoleBaud);	// opens serial port
 
-#ifdef ENABLE_DISPLAY
-  display.initR(INITR_BLACKTAB);  // You will need to do this in every sketch
-  display.fillScreen(ST7735_BLUE);
-
-  pinMode(TFT_EN, OUTPUT);
-  digitalWrite(TFT_EN, LOW); // TFT is enabled LOW
-
-  // TODO: Disable SD for now
-  pinMode(TFT_SD_EN, OUTPUT);
-  digitalWrite(TFT_SD_EN, HIGH); // SD is enabled LOW
-
-  //tft print function!
-  display.setTextColor(display_fgcolor);
-  display.setTextSize(0);
-  display.setCursor(0, 0);
-#endif
-
 #ifdef ENABLE_KEYBOARD
   keyboard.begin(KEYBOARD_DATA, KEYBOARD_CLK);
   keyboard.echo();  // ping keyboard to see if there
@@ -2207,8 +2125,7 @@ void setupBASIC()
 #endif /* ENABLE_EEPROM */
 
 #ifdef ENABLE_TONES
-  // TODO
-  //noTone( kPiezoPin );
+  noTone( kPiezoPin );
 #endif
 #endif
 
@@ -2298,21 +2215,6 @@ static uint16_t inchar()
       else if (Serial.available()) // Keep serial for debug purposes
         return Serial.read();
 #endif
-
-#ifdef ENABLE_DISPLAY
-	  static bool cursorVisible = true;
-	  static unsigned long lastCursorMillis = millis();
-	  unsigned long cursorMillis = millis();
-	  if ((cursorMillis - lastCursorMillis) > 1000)
-	  {
-		  lastCursorMillis = cursorMillis;
-		  cursorVisible = cursorVisible ? false : true;
-	  }
-
-	  int16_t xpos = display.getCursorX();
-	  int16_t ypos = display.getCursorY();
-	  display.fillRect(xpos, ypos, CHAR_WIDTH, CHAR_HEIGHT, cursorVisible ? display_fgcolor : display_bgcolor);
-#endif
     }
   }
   
@@ -2359,25 +2261,6 @@ static void outchar(unsigned char c, bool suppressDisplayOut)
   #endif /* ENABLE_EEPROM */
   #endif /* ARDUINO */
     Serial.write(c);
-#ifdef ENABLE_DISPLAY
-	if (!suppressDisplayOut)
-	{
-		int16_t ypos = display.getCursorY();
-		if (ypos > DISPLAY_HEIGHT)
-		{
-			display.setCursor(0, 0);
-		}
-
-		int16_t xpos = display.getCursorX();
-		if (xpos == 0)
-		{
-			display.fillRect(0, ypos, DISPLAY_WIDTH, CHAR_HEIGHT, display_bgcolor);
-		}
-
-		display.fillRect(xpos, ypos, CHAR_WIDTH, CHAR_HEIGHT, display_bgcolor); // Erase the cursor
-		display.write(c);
-	}
-#endif
 
   if (!suppressDisplayOut)
   {

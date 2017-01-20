@@ -37,6 +37,7 @@ private:
 
     bool DispatchSerialInput(char c); // returns true if handled
     void DispatchSpecialKeyboardInput(char c, uint16_t code);
+    void DispatchFunctionKeyInput(bool shift, bool ctrl, bool alt, char scanCode);
     void DispatchInputChar(char c, uint16_t code);
     void OutputChar(char c);
     void PerformLineTermination();
@@ -47,7 +48,9 @@ private:
     int m_cursorX, m_cursorY;
     bool m_cursorVisible;
     unsigned long m_lastCursorMillis;
-    bool m_displayNeedsRefresh;
+    bool m_displayNeedsRefresh;    
+    unsigned long m_lastInputMillis;
+    bool m_displayEnabled;
 
     // keyboard
     bool m_keyboardIsActive;

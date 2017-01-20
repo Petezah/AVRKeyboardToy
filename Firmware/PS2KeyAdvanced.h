@@ -387,6 +387,9 @@ class PS2KeyAdvanced {
         returned data in keyboard buffer read as keys */
     void echo( void );
 
+    /* Send Disable command to keyboard */
+    void disable( void );
+
     /*  Send Typematic rate/delay command to keyboard
        First Parameter  rate is 0 - 0x1F (31)
                 0 = 30 CPS

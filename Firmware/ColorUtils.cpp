@@ -38,3 +38,20 @@ uint16_t lookupColor(uint8_t index)
 
 	return color;
  }
+
+ uint16_t lookupLerpColor(uint8_t index1, uint8_t index2)
+ {
+    const uint8_t* pColor = colors + ((index1 % NUM_C64_COLORS) * 3);
+	uint8_t r1 = pgm_read_byte( pColor++ );
+	uint8_t g1 = pgm_read_byte( pColor++ );
+	uint8_t b1 = pgm_read_byte( pColor );
+	 
+ 	pColor = colors + ((index2 % NUM_C64_COLORS) * 3);
+	uint8_t r2 = pgm_read_byte( pColor++ );
+	uint8_t g2 = pgm_read_byte( pColor++ );
+	uint8_t b2 = pgm_read_byte( pColor );
+
+	uint16_t color = color565((r1 >> 1) + (r2 >> 1), (g1 >> 1) + (g2 >> 1), (b1 >> 1) + (b2 >> 1));
+	
+	return color;
+}
