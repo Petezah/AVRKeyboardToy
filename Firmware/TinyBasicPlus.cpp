@@ -7,7 +7,7 @@
 //         Brian O'Dell <megamemnon@megamemnon.com>
 
 #include "KeyboardUtil.h"
-#define kVersion "v0.14"
+#define kVersion "v0.15"
 
 // v0.14: 2013-11-07
 //      Input command always set the variable to 99
