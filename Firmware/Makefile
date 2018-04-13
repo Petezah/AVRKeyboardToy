@@ -45,7 +45,8 @@
 #
 # $Id$
 
-PORT = COM3
+#PORT = COM3
+PORT =  /dev/ttyS3
 TARGET = AvrKeyboardToy
 ARDUINO = ./arduino
 SRC = $(ARDUINO)/wiring.c $(ARDUINO)/wiring_digital.c $(ARDUINO)/wiring_analog.c \
