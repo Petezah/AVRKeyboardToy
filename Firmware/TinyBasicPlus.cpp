@@ -4,11 +4,16 @@
 //
 // Authors: Mike Field <hamster@snap.net.nz>
 //	    Scott Lawrence <yorgle@gmail.com>
-//
+//         Brian O'Dell <megamemnon@megamemnon.com>
 
 #include "KeyboardUtil.h"
 #define kVersion "v0.14"
 
+// v0.14: 2013-11-07
+//      Input command always set the variable to 99
+//      Modified Input command to accept an expression using getn()
+//      Syntax is "input x" where x is any variable
+//
 // v0.13: 2013-03-04
 //      Support for Arduino 1.5 (SPI.h included, additional changes for DUE support)
 //
@@ -83,6 +88,7 @@
 // hack to let makefiles work with this file unchanged
 #ifdef FORCE_DESKTOP 
 #undef ARDUINO
+#include "desktop.h"
 #else
 #include <Arduino.h>
 //#define ARDUINO 1
@@ -288,13 +294,13 @@ typedef short unsigned LINENUM;
 
 static unsigned char program[kRamSize];
 static const char *  sentinel = "HELLO";
-static unsigned char *txtpos,*list_line;
+static unsigned char *txtpos,*list_line, *tmptxtpos;
 static unsigned char expression_error;
 static unsigned char *tempsp;
 
 /***********************************************************/
 // Keyword table and constants - the last character has 0x80 added to it
-static const unsigned char keywords[] PROGMEM = {
+const static unsigned char keywords[] PROGMEM = {
   'L','I','S','T'+0x80,
   'L','O','A','D'+0x80,
   'N','E','W'+0x80,
@@ -1409,8 +1415,10 @@ esave:
 
     // copied from "List"
     list_line = findline();
-    while(list_line != program_end)
+    while(list_line != program_end) {
       printline();
+    }
+    outchar('\0');
 
     // go back to standard output, close the file
     outStream = kStreamSerial;
@@ -1437,6 +1445,7 @@ eload:
 input:
   {
     unsigned char var;
+    int value;
     ignore_blanks();
     if(*txtpos < 'A' || *txtpos > 'Z')
       goto qwhat;
@@ -1445,7 +1454,18 @@ input:
     ignore_blanks();
     if(*txtpos != NL && *txtpos != ':')
       goto qwhat;
-    ((short int *)variables_begin)[var-'A'] = 99;
+inputagain:
+    tmptxtpos = txtpos;
+    getln( '?' );
+    toUppercaseBuffer();
+    txtpos = program_end+sizeof(unsigned short);
+    ignore_blanks();
+    expression_error = 0;
+    value = expression();
+    if(expression_error)
+      goto inputagain;
+    ((short int *)variables_begin)[var-'A'] = value;
+    txtpos = tmptxtpos;
 
     goto run_next_statement;
   }
@@ -2346,4 +2366,3 @@ void cmd_Files( void )
   dir.close();
 }
 #endif
-

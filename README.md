@@ -21,7 +21,8 @@ TinyBasic Plus is an extension and modification upon the original
 "Tiny Basic" by adding support for a few more devices, configurable
 at build time.  It is designed for use on the Arduino, although
 builds will soon be easily possible for other platforms through
-command line makefiles.
+command line makefiles.  Provided is a makefile that builds for 
+unix-ey type OSes.  It has only been tested for Darwin (OS X).
 
 Features added include support for fileio (SD Library), autorunning
 a program from the SD card, smaller footprint (PROGMEM), support
@@ -51,8 +52,8 @@ program.
 - ECHAIN	- load the program from EEProm and run it
 
 ## IO, Documentation
-- PEEK( address )	- *set a value in memory* (unimplemented)
-- POKE			- *get a value in memory* (unimplemented)
+- PEEK( address )	- *get a value in memory* (unimplemented)
+- POKE address		- *set a value in memory* (unimplemented)
 - PRINT expression	- *print out the expression, also "?"*
 - REM stuff		- *remark/comment, also "'"*
 
@@ -186,7 +187,7 @@ List both, and run
 # Authors and Contributors
 
 - Tiny Basic 68k - Gordon Brandly [Project Page](http://members.shaw.ca/gbrandly/68ktinyb.html)
-- Arduino Basic / Tiny Basic C - Michael Field [Project Page](http://ec2-122-248-210-243.ap-southeast-1.compute.amazonaws.com/mediawiki/index.php/Arduino_Basic)
+- Arduino Basic / Tiny Basic C - Michael Field [Project Page](http://hamsterworks.co.nz/mediawiki/index.php/Arduino_Basic)
 - Tiny Basic Plus - Scott Lawrence <yorgle@gmail.com> [Github Page](http://github.com/BleuLlama/TinyBasicPlus]
 
 - Jurg Wullschleger - Fix for unary operations and whitespace in expressions
