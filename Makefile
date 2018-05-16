@@ -18,10 +18,10 @@
 
 all: simulator firmware
 
-firmware:
+firmware: Firmware/AvrKeyboardToy.hex
 	cd Firmware; make
 
-simulator:
+simulator: simkeytoy
 	cd Simulator; make
 
 clean: cleanfirmware cleansimulator
