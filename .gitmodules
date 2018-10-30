@@ -1,0 +1,3 @@
+[submodule "Firmware/SmartResponseXE"]
+	path = Firmware/SmartResponseXE
+	url = git@github.com:Petezah/SmartResponseXE.git
