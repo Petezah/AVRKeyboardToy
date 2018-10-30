@@ -3,7 +3,7 @@
 #define _DISPLAYBUFFER_H_
 
  #include "Print.h"
- #include <Adafruit_ST7735.h>
+ #include <SRXE_Display.h>
  #include <IDisplay.h>
 
 #define DISPLAY_BUF_SIZE (NUM_CHAR_ROWS*NUM_CHAR_COLUMNS)

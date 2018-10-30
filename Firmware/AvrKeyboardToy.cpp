@@ -59,7 +59,7 @@ static const char NO_KEYBOARD_FOUND[] PROGMEM = "No keyboard was found.  Enablin
 static const char EXECUTING_PROMPT[] PROGMEM = "Executing: ";
 ///////////////
 
-Adafruit_ST7735 g_display(TFT_CS, TFT_DC, TFT_RST);
+SRXE_Display g_display;
 DisplayBuffer g_displayBuffer(&g_display);
 PS2KeyAdvanced g_keyboard;
 
@@ -78,9 +78,17 @@ void displayTestPattern()
 
 void simpleDisplayTest()
 {
-    g_display.fillScreen(ST7735_BLACK);
+    g_display.fillScreen(0); // BLACK?
     g_display.println("This is a test");
     g_display.println("This is another test");
+    while (1)
+        ;
+}
+
+void simpleDisplayTest2()
+{
+    SRXEFill(0);
+    SRXEWriteString(0, 120, "Hello World!", FONT_LARGE, 3, 0);
     while (1)
         ;
 }
@@ -105,14 +113,15 @@ void AvrKeyboardToy::Init()
 
     //displayTestPattern();
     //simpleDisplayTest();
+    //simpleDisplayTest2();
 
     m_displayNeedsRefresh = true;
 }
 
 void AvrKeyboardToy::InitDisplay()
 {
-    g_display.initR(INITR_BLACKTAB);
-    g_display.setRotation(2); // 180* rotation
+    g_display.init();
+    //g_display.setRotation(2); // 180* rotation
 
     // Power on the display
     pinMode(TFT_EN, OUTPUT);
@@ -281,7 +290,7 @@ void AvrKeyboardToy::RefreshDisplay(bool clearOnly)
 {
     if (clearOnly)
     {
-        g_display.fillScreen(ST7735_BLUE);
+        g_display.fillScreen(0x001F);
         return;
     }
 

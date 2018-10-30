@@ -8,7 +8,7 @@
 #define _AVRKEYBOARDTOY_H_
 
 #include <Adafruit_GFX.h>
-#include <Adafruit_ST7735.h>
+#include <SRXE_Display.h>
 #include "DisplayBuffer.h"
 #include "TinyBasicPlus.h"
 

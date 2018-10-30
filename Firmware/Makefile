@@ -45,26 +45,29 @@
 #
 # $Id$
 
-#PORT = COM3
-PORT =  /dev/ttyS3
+#PORT = COM4
+PORT =  /dev/ttyS4
 TARGET = AvrKeyboardToy
 ARDUINO = ./arduino
+SMARTRESPONSE = ./SmartResponseXE
 SRC = $(ARDUINO)/wiring.c $(ARDUINO)/wiring_digital.c $(ARDUINO)/wiring_analog.c \
 	$(ARDUINO)/hooks.c
 CXXSRC = $(TARGET).cpp main.cpp TinyBasicPlus.cpp KeyboardUtil.cpp DisplayBuffer.cpp ColorUtils.cpp \
-	Adafruit_GFX.cpp Adafruit_ST7735.cpp \
+	Adafruit_GFX.cpp\
+	SRXE_Display.cpp \
 	PS2KeyAdvanced.cpp \
 	$(ARDUINO)/abi.cpp \
 	$(ARDUINO)/WMath.cpp $(ARDUINO)/Print.cpp $(ARDUINO)/Tone.cpp \
 	$(ARDUINO)/HardwareSerial.cpp $(ARDUINO)/HardwareSerial0.cpp \
-	$(ARDUINO)/SPI.cpp 
-MCU = atmega328p
+	$(ARDUINO)/SPI.cpp \
+	$(SMARTRESPONSE)/SmartResponseXE.cpp
+MCU = atmega128rfa1
 F_CPU = 8000000L
 # Set below in board targets
 #BOARD_TYPE = AVR_KEYBOARD_TOY_RELEASE
 #BOARD_TYPE = AVR_KEYBOARD_TOY_TEST
 FORMAT = ihex
-UPLOAD_RATE = 57600
+UPLOAD_RATE = 115200
 
 # Name of this Makefile (used for "make depend").
 MAKEFILE = Makefile
@@ -82,8 +85,8 @@ CDEFS = -DF_CPU=$(F_CPU) -DARDUINO=10608 -DARDUINO_ARCH_AVR -D$(BOARD_TYPE)
 CXXDEFS = -DF_CPU=$(F_CPU) -DARDUINO=10608 -DARDUINO_ARCH_AVR -D$(BOARD_TYPE)
 
 # Place -I options here
-CINCS = -I$(ARDUINO)
-CXXINCS = -I$(ARDUINO)
+CINCS = -I$(ARDUINO) -I$(SMARTRESPONSE)
+CXXINCS = -I$(ARDUINO) -I$(SMARTRESPONSE)
 
 # Compiler flag to set the C Standard level.
 # c89   - "ANSI" C
@@ -109,7 +112,7 @@ CXXFLAGS = $(CDEBUG) $(CXXSTANDARD) $(CDEFS) $(CINCS) -O$(OPT) $(CXXFIXSTATICS) 
 LDFLAGS = $(LDSIZEOPT)
 
 # Programming support using avrdude. Settings and variables.
-AVRDUDE_PROGRAMMER = arduino
+AVRDUDE_PROGRAMMER = stk500v1
 AVRDUDE_PORT = $(PORT)
 AVRDUDE_WRITE_FLASH = -U flash:w:$(TARGET).hex
 AVRDUDE_FLAGS = -F -p $(MCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER) \
