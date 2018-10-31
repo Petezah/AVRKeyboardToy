@@ -178,7 +178,9 @@ sym: $(TARGET).sym
 upload: $(TARGET).hex # $(TARGET).eep
 	$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH)
 
-
+# Test the AVR to see if it is there
+testavr: 
+	$(AVRDUDE) $(AVRDUDE_FLAGS)
 
 
 # Convert ELF to COFF for use in debugging / simulating in AVR Studio or VMLAB.

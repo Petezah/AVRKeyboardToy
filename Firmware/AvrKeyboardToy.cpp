@@ -89,6 +89,32 @@ void simpleDisplayTest2()
 {
     SRXEFill(0);
     SRXEWriteString(0, 120, "Hello World!", FONT_LARGE, 3, 0);
+    SRXEWriteString(0, 90, "Hello World!", FONT_SMALL, 3, 0);
+    SRXEWriteString(0, 100, "Hello World!", FONT_MEDIUM, 3, 0);
+    SRXESetPosition(0, 30, 12, 16);
+
+    uint8_t data[64] = {
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        3, 3, 3, 3,
+        3, 3, 3, 3,
+        3, 3, 3, 3,
+        0x1c, 0x1c, 0x1c, 0x1c,
+        0x1c, 0x1c, 0x1c, 0x1c,
+        0x1c, 0x1c, 0x1c, 0x1c,
+        0xe0, 0xe0, 0xe0, 0xe0,
+        0xe0, 0xe0, 0xe0, 0xe0,
+        0xe0, 0xe0, 0xe0, 0xe0,
+        1, 1, 1, 1, 
+        2, 2, 2, 2, 
+        3, 3, 3, 3, 
+        3, 3,  3, 3 
+    };
+    SRXEWriteDataBlock(data, 64);
+    SRXERectangle(0, 0, 20, 20, 3, 1);
+    SRXERectangle(0, 20, 20, 20, 2, 1);
+    SRXERectangle(0, 40, 20, 20, 1, 1);
     while (1)
         ;
 }
@@ -113,7 +139,7 @@ void AvrKeyboardToy::Init()
 
     //displayTestPattern();
     //simpleDisplayTest();
-    //simpleDisplayTest2();
+    simpleDisplayTest2();
 
     m_displayNeedsRefresh = true;
 }
