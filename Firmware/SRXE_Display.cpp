@@ -77,6 +77,11 @@ void SRXE_Display::drawFastChar(int16_t x, int16_t y, unsigned char c, uint16_t 
      ((x + 8 - 1) < 0)        || // Clip left
      ((y + 8 - 1) < 0))          // Clip top
      return;
+
+  char sTmp[2] = {c, 0};
+  SRXEWriteString(x, y, sTmp, FONT_SMALL, color, bg);
+  return;
+
   SRXESetPosition(x, y, 8, 8);//8x8 square
 
   if(!_cp437 && (c >= 176)) c++; // Handle 'classic' charset behavior
@@ -103,6 +108,18 @@ void SRXE_Display::drawFastChar(int16_t x, int16_t y, unsigned char c, uint16_t 
 
 void SRXE_Display::drawFastCharBuffer(unsigned char* buf, uint8_t* colorBuf)
 {
+  unsigned char *bufRow = buf;
+  uint8_t *colorBufRow = colorBuf;
+  char rowTmp[NUM_CHAR_COLUMNS + 1] = {0};
+  for(uint8_t y=0; y<NUM_CHAR_ROWS; ++y)
+  {
+    memcpy(rowTmp, bufRow, NUM_CHAR_COLUMNS);
+    SRXEWriteString(0, y*CHAR_HEIGHT, rowTmp, FONT_SMALL, 3, 0);
+    bufRow += NUM_CHAR_COLUMNS;
+    colorBufRow += NUM_CHAR_COLUMNS;
+  }
+
+#if 0
   uint8_t xMax = CHAR_WIDTH * NUM_CHAR_COLUMNS;
   uint8_t yMax = CHAR_HEIGHT * NUM_CHAR_ROWS;
   SRXESetPosition(0, 0, xMax - 1, yMax - 1);// whole display
@@ -144,6 +161,7 @@ void SRXE_Display::drawFastCharBuffer(unsigned char* buf, uint8_t* colorBuf)
       }
     }
   }
+#endif
 }
 
 void SRXE_Display::fillScreen(uint16_t color) {

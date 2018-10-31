@@ -139,7 +139,7 @@ void AvrKeyboardToy::Init()
 
     //displayTestPattern();
     //simpleDisplayTest();
-    simpleDisplayTest2();
+    //simpleDisplayTest2();
 
     m_displayNeedsRefresh = true;
 }

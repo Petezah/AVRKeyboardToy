@@ -36,7 +36,8 @@ uint16_t lookupColor(uint8_t index)
 	uint8_t b = pgm_read_byte( pColor );
     uint16_t color = color565(r, g, b);
 
-	return color;
+	return b == 0xFF ? 0 : 3;
+	//return color;
  }
 
  uint16_t lookupLerpColor(uint8_t index1, uint8_t index2)

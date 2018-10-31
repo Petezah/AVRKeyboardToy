@@ -181,7 +181,7 @@ int eepos = 0;
 File fp;
 #endif
 
-#define kRamDisplay (0)
+#define kRamDisplay (DISPLAY_BUF_SIZE * 2)
 #include <DisplayBuffer.h>
 extern DisplayBuffer g_displayBuffer;
 
@@ -222,7 +222,8 @@ Adafruit_MCP23017 mcp;
 #endif
 #endif /* ARDUINO */
 // TODO: more accurately determine free RAM
-#define kRamSize  700 //(RAMEND - 1160 - kRamFileIO - kRamTones - kRamDisplay) 
+//#define kRamSize  700
+#define kRamSize  (RAMEND - 1160 - kRamFileIO - kRamTones - kRamDisplay) 
 
 #ifndef ARDUINO
 // Not arduino setup
