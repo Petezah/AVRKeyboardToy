@@ -185,9 +185,11 @@ File fp;
 #include <DisplayBuffer.h>
 extern DisplayBuffer g_displayBuffer;
 
+#ifdef PS2_KEYBOARD
 #include <PS2KeyAdvanced.h>
 #include "KeyboardUtil.h"
 extern PS2KeyAdvanced g_keyboard;
+#endif
 
 #ifdef ENABLE_KEYBOARD
 // Pins
@@ -222,8 +224,8 @@ Adafruit_MCP23017 mcp;
 #endif
 #endif /* ARDUINO */
 // TODO: more accurately determine free RAM
-//#define kRamSize  700
-#define kRamSize  (RAMEND - 1160 - kRamFileIO - kRamTones - kRamDisplay) 
+#define kRamSize  700
+//#define kRamSize  (RAMEND - 1160 - kRamFileIO - kRamTones - kRamDisplay) 
 
 #ifndef ARDUINO
 // Not arduino setup
@@ -1844,6 +1846,7 @@ files:
 #endif // ENABLE_FILEIO
 
 sleep:
+#ifdef PS2_KEYBOARD
     // Disable keyboard
     g_keyboard.disable();
 
@@ -1857,6 +1860,7 @@ sleep:
     // sleep.
     sleep_disable();
     g_keyboard.resetKey();
+#endif
     goto run_next_statement;
 
 chain:

@@ -33,7 +33,7 @@
     #define F(string_literal) string_literal
 #endif
 
-#define CHAR_WIDTH 8
+#define CHAR_WIDTH 9
 #define CHAR_HEIGHT 8
 #define NUM_CHAR_COLUMNS (LCD_WIDTH/CHAR_WIDTH)
 #define NUM_CHAR_ROWS    (LCD_HEIGHT/CHAR_HEIGHT)

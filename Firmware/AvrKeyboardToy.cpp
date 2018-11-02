@@ -7,12 +7,19 @@
 #include <Arduino.h>
 #include "AvrKeyboardToy.h"
 
-#include <PS2KeyAdvanced.h>
-#include "KeyboardUtil.h"
+//#define PS2_KEYBOARD
+#define SRXE_KEYBOARD
 
+#include <PS2KeyAdvanced.h>
+#ifdef PS2_KEYBOARD
 // Keyboard Pins
 #define KEYBOARD_DATA 4
 #define KEYBOARD_CLK 3
+#endif
+
+
+#include "KeyboardUtil.h"
+
 
 #if defined(AVR_KEYBOARD_TOY_RELEASE)
 
@@ -61,7 +68,9 @@ static const char EXECUTING_PROMPT[] PROGMEM = "Executing: ";
 
 SRXE_Display g_display;
 DisplayBuffer g_displayBuffer(&g_display);
+#ifdef PS2_KEYBOARD
 PS2KeyAdvanced g_keyboard;
+#endif
 
 void displayTestPattern()
 {
@@ -88,9 +97,9 @@ void simpleDisplayTest()
 void simpleDisplayTest2()
 {
     SRXEFill(0);
-    SRXEWriteString(0, 120, "Hello World!", FONT_LARGE, 3, 0);
-    SRXEWriteString(0, 90, "Hello World!", FONT_SMALL, 3, 0);
-    SRXEWriteString(0, 100, "Hello World!", FONT_MEDIUM, 3, 0);
+    SRXEWriteString(0, 120, (char*)"Hello World!", FONT_LARGE, 3, 0);
+    SRXEWriteString(0, 90, (char*)"Hello World!", FONT_SMALL, 3, 0);
+    SRXEWriteString(0, 100, (char*)"Hello World!", FONT_MEDIUM, 3, 0);
     SRXESetPosition(0, 30, 12, 16);
 
     uint8_t data[64] = {
@@ -150,13 +159,14 @@ void AvrKeyboardToy::InitDisplay()
     //g_display.setRotation(2); // 180* rotation
 
     // Power on the display
-    pinMode(TFT_EN, OUTPUT);
-    digitalWrite(TFT_EN, LOW); // TFT is enabled LOW
+    //pinMode(TFT_EN, OUTPUT);
+    //digitalWrite(TFT_EN, LOW); // TFT is enabled LOW
     m_displayEnabled = true;
 }
 
 void AvrKeyboardToy::InitInput()
 {
+#ifdef PS2_KEYBOARD
     g_keyboard.begin(KEYBOARD_DATA);
     g_keyboard.echo(); // ping keyboard to see if there
     delay(6);
@@ -173,6 +183,10 @@ void AvrKeyboardToy::InitInput()
         m_keyboardIsActive = false;
         OutputString(NO_KEYBOARD_FOUND, true);
     }
+#endif
+#ifdef SRXE_KEYBOARD
+    m_keyboardIsActive = true;
+#endif
 
     m_lastInputMillis = millis();
 }
@@ -220,6 +234,7 @@ void AvrKeyboardToy::UpdateInput()
     if (m_keyboardIsActive)
     {
         //Serial.print('.');
+#ifdef PS2_KEYBOARD
         if (g_keyboard.available())
         {
             code = g_keyboard.read();
@@ -231,13 +246,24 @@ void AvrKeyboardToy::UpdateInput()
                 DispatchSpecialKeyboardInput(c, code);
             }
         }
+#endif
+#ifdef SRXE_KEYBOARD
+        byte code = SRXEGetKey();
+        gotChar = TranslateKey(code, &c); // if it is printable, we will print it (gotChar)
+        if (!gotChar)                     // if it is not printable, we may be able to do something anyway
+        {
+            DispatchSpecialKeyboardInput(c, code);
+        }
+#endif
     }
+#ifndef SRXE_KEYBOARD
     else if (Serial.available()) // Keep serial for debug purposes
     {
         //Serial.print(',');
         c = Serial.read();
         gotChar = !DispatchSerialInput(c); // handle all printable chars below
     }
+#endif
 
     if (gotChar)
     {
@@ -389,6 +415,7 @@ bool AvrKeyboardToy::DispatchSerialInput(char c) // returns true if handled
 
 void AvrKeyboardToy::DispatchSpecialKeyboardInput(char c, uint16_t code)
 {
+#ifdef PS2_KEYBOARD
     // The top bits are status and the bottom bits are the scan code.
     // We need to check the status code, because we only care about keydown, not keyup
     char scanCode = ((char)code & 0xFF);
@@ -422,6 +449,31 @@ void AvrKeyboardToy::DispatchSpecialKeyboardInput(char c, uint16_t code)
             break;
         }
     }
+#endif
+#ifdef SRXE_KEYBOARD
+    switch (c)
+    {
+    case 0x04:
+        g_displayBuffer.moveCursorUp();
+        break;
+    case 0x05:
+        g_displayBuffer.moveCursorDown();
+        break;
+    case 0x03:
+        g_displayBuffer.moveCursorRight();
+        break;
+    case 0x02:
+        g_displayBuffer.moveCursorLeft();
+        break;
+
+    default:
+        // if (scanCode >= PS2_KEY_F1 && scanCode <= PS2_KEY_F12)
+        // {
+        //     DispatchFunctionKeyInput(shift, ctrl, alt, scanCode);
+        // }
+        break;
+    }
+#endif
 }
 
 void AvrKeyboardToy::DispatchFunctionKeyInput(bool shift, bool ctrl, bool alt, char scanCode)

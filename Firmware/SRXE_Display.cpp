@@ -79,7 +79,7 @@ void SRXE_Display::drawFastChar(int16_t x, int16_t y, unsigned char c, uint16_t 
      return;
 
   char sTmp[2] = {c, 0};
-  SRXEWriteString(x, y, sTmp, FONT_SMALL, color, bg);
+  SRXEWriteString(x, y, sTmp, FONT_NORMAL, color, bg);
   return;
 
   SRXESetPosition(x, y, 8, 8);//8x8 square
@@ -114,7 +114,7 @@ void SRXE_Display::drawFastCharBuffer(unsigned char* buf, uint8_t* colorBuf)
   for(uint8_t y=0; y<NUM_CHAR_ROWS; ++y)
   {
     memcpy(rowTmp, bufRow, NUM_CHAR_COLUMNS);
-    SRXEWriteString(0, y*CHAR_HEIGHT, rowTmp, FONT_SMALL, 3, 0);
+    SRXEWriteString(0, y*CHAR_HEIGHT, rowTmp, FONT_NORMAL, 3, 0);
     bufRow += NUM_CHAR_COLUMNS;
     colorBufRow += NUM_CHAR_COLUMNS;
   }

@@ -6,6 +6,7 @@
 #include "KeyboardUtil.h"
 
 // Returns: true if key is printable, false if not
+#ifdef PS2_KEYBOARD
 bool TranslateKey(uint16_t code, char *pOutChar)
 {
 	bool printable = false;
@@ -93,3 +94,21 @@ bool TranslateKey(uint16_t code, char *pOutChar)
 
 	return printable && keydown;
 }
+#else
+bool TranslateKey(uint16_t code, char *pOutChar)
+{
+	bool printable = true;
+	*pOutChar = code;
+	if (code < 0xF || code >= 0xF0)
+	{
+		printable = false;
+		if (code == 0xF9)
+		{
+			printable = true;
+			*pOutChar = NL;
+		}
+	}
+
+	return printable;
+}
+#endif
