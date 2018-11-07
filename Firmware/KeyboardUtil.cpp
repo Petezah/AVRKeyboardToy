@@ -107,6 +107,11 @@ bool TranslateKey(uint16_t code, char *pOutChar)
 			printable = true;
 			*pOutChar = NL;
 		}
+		else if (code == 0x08)
+		{
+			printable = true;
+			*pOutChar = DELETE;
+		}
 	}
 
 	return printable;
