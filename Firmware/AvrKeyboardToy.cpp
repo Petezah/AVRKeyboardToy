@@ -139,8 +139,10 @@ void AvrKeyboardToy::Init()
     // Arduino init
     init();
 
+#ifndef SRXE_KEYBOARD
     Serial.begin(9600);
     OutputString(VERSION_STRING, true);
+#endif
 
     // TODO: our own init
     InitDisplay();
@@ -529,7 +531,9 @@ void AvrKeyboardToy::DispatchInputChar(char c, uint16_t code)
 
 void AvrKeyboardToy::OutputChar(char c)
 {
+#ifndef SRXE_KEYBOARD
     Serial.write(c); // echo on serial
+#endif
     g_displayBuffer.write(c);
 }
 
@@ -563,9 +567,11 @@ void AvrKeyboardToy::PerformLineTermination()
     OutputChar(NL);
     OutputChar(CR);
 
+#ifndef SRXE_KEYBOARD
     // Execute line
     OutputString(EXECUTING_PROMPT);
     Serial.println(pExecCmd);
+#endif
 
     injectln(pExecCmd);
     m_interpreterState = Run;
@@ -573,6 +579,7 @@ void AvrKeyboardToy::PerformLineTermination()
 
 void AvrKeyboardToy::OutputString(const char *msg, bool newline)
 {
+#ifndef SRXE_KEYBOARD
     while (1)
     {
         unsigned char c = pgm_read_byte(msg++);
@@ -581,4 +588,5 @@ void AvrKeyboardToy::OutputString(const char *msg, bool newline)
         if (!Serial.write(c))
             break;
     }
+#endif
 }
