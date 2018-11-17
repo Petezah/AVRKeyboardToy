@@ -473,6 +473,16 @@ void AvrKeyboardToy::DispatchSpecialKeyboardInput(char c, uint16_t code)
         // {
         //     DispatchFunctionKeyInput(shift, ctrl, alt, scanCode);
         // }
+        switch(code)
+        {
+            case 0xf0:
+                SRXESleep();
+                m_displayNeedsRefresh = true;
+                break;
+
+            default:
+                break;
+        }
         break;
     }
 #endif
