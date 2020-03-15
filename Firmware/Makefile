@@ -46,7 +46,7 @@
 # $Id$
 
 #PORT = COM4
-PORT =  /dev/ttyS4
+PORT =  /dev/ttyS5
 TARGET = AvrKeyboardToy
 ARDUINO = ./arduino
 SMARTRESPONSE = ./SmartResponseXE
