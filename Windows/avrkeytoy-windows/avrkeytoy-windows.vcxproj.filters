@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="AVRKeyboardToy">
+      <UniqueIdentifier>{4eb0a318-838f-4a21-9c24-3e71223fe486}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AVRKeyboardToy\SmartResponseXE">
+      <UniqueIdentifier>{d01c0e30-12cf-4310-b7e6-719de7fa685b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -27,6 +33,39 @@
     <ClInclude Include="avrkeytoy-windows.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Firmware\8x8font.h">
+      <Filter>AVRKeyboardToy</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Firmware\Adafruit_GFX.h">
+      <Filter>AVRKeyboardToy</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Firmware\AvrKeyboardToy.h">
+      <Filter>AVRKeyboardToy</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Firmware\ColorUtils.h">
+      <Filter>AVRKeyboardToy</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Firmware\DisplayBuffer.h">
+      <Filter>AVRKeyboardToy</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Firmware\gfxfont.h">
+      <Filter>AVRKeyboardToy</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Firmware\IDisplay.h">
+      <Filter>AVRKeyboardToy</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Firmware\KeyboardUtil.h">
+      <Filter>AVRKeyboardToy</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Firmware\SRXE_Display.h">
+      <Filter>AVRKeyboardToy</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Firmware\TinyBasicPlus.h">
+      <Filter>AVRKeyboardToy</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Firmware\SmartResponseXE\SmartResponseXE.h">
+      <Filter>AVRKeyboardToy\SmartResponseXE</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="avrkeytoy-windows.cpp">
@@ -34,6 +73,36 @@
     </ClCompile>
     <ClCompile Include="SDL_windows_main.c">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Firmware\glcdfont.c">
+      <Filter>AVRKeyboardToy</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Firmware\Adafruit_GFX.cpp">
+      <Filter>AVRKeyboardToy</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Firmware\AvrKeyboardToy.cpp">
+      <Filter>AVRKeyboardToy</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Firmware\ColorUtils.cpp">
+      <Filter>AVRKeyboardToy</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Firmware\DisplayBuffer.cpp">
+      <Filter>AVRKeyboardToy</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Firmware\KeyboardUtil.cpp">
+      <Filter>AVRKeyboardToy</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Firmware\main.cpp">
+      <Filter>AVRKeyboardToy</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Firmware\SRXE_Display.cpp">
+      <Filter>AVRKeyboardToy</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Firmware\TinyBasicPlus.cpp">
+      <Filter>AVRKeyboardToy</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Firmware\SmartResponseXE\SmartResponseXE.cpp">
+      <Filter>AVRKeyboardToy\SmartResponseXE</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

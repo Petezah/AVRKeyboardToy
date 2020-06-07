@@ -2,7 +2,9 @@
 // 
 // 
 
+#ifdef PS2_KEYBOARD
 #include <PS2KeyAdvanced.h>
+#endif
 #include "KeyboardUtil.h"
 
 // Returns: true if key is printable, false if not

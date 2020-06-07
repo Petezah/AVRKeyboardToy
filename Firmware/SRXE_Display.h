@@ -5,11 +5,13 @@
 #ifndef _SRXE_DISPLAY_
 #define _SRXE_DISPLAY_
 
+#ifndef _WINDOWS
 #if ARDUINO >= 100
  #include "Arduino.h"
  #include "Print.h"
 #else
  #include "WProgram.h"
+#endif
 #endif
 
 #include <Adafruit_GFX.h>

@@ -2,7 +2,9 @@
 #ifndef _IDISPLAY_H_
 #define _IDISPLAY_H_
 
+#ifndef _WINDOWS
 #include <Arduino.h>
+#endif
 
 class IDisplay
 {

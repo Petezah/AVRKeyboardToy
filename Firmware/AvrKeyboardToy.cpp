@@ -4,7 +4,9 @@
 // Authors: Peter Dunshee <peter@petezah.com>
 //
 
+#ifndef _WINDOWS
 #include <Arduino.h>
+#endif
 #include "AvrKeyboardToy.h"
 
 //#define PS2_KEYBOARD
@@ -20,7 +22,9 @@
 
 #include "KeyboardUtil.h"
 
-
+#ifdef _WINDOWS
+#define PROGMEM
+#else
 #if defined(AVR_KEYBOARD_TOY_RELEASE)
 
 // Display utilities
@@ -41,6 +45,7 @@
 
 #else
 #error No board type was defined!  Must define either AVR_KEYBOARD_TOY_RELEASE or AVR_KEYBOARD_TOY_TEST!
+#endif
 #endif
 
 //TEMP: When I get SD cooperating with TFT, I will move this

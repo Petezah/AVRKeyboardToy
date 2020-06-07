@@ -2,9 +2,11 @@
 #ifndef _DISPLAYBUFFER_H_
 #define _DISPLAYBUFFER_H_
 
- #include "Print.h"
- #include <SRXE_Display.h>
- #include <IDisplay.h>
+#ifndef _WINDOWS
+#include "Print.h"
+#endif
+#include <SRXE_Display.h>
+#include <IDisplay.h>
 
 #define DISPLAY_BUF_SIZE (NUM_CHAR_ROWS*NUM_CHAR_COLUMNS)
 

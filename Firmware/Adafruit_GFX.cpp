@@ -498,6 +498,17 @@ void Adafruit_GFX::write(uint8_t c) {
 #endif
 }
 
+#ifdef _WINDOWS
+size_t Adafruit_GFX::print(const char buffer[])
+{
+    size_t n = strlen(buffer);
+    while (n--) {
+        write(*buffer++);
+    }
+    return n;
+}
+#endif
+
 // Draw a character
 void Adafruit_GFX::drawChar(int16_t x, int16_t y, unsigned char c,
  uint16_t color, uint16_t bg, uint8_t size) {
@@ -755,6 +766,7 @@ void Adafruit_GFX::getTextBounds(char *str, int16_t x, int16_t y,
   } // End classic vs custom font
 }
 
+#ifndef _WINDOWS
 // Same as above, but for PROGMEM strings
 void Adafruit_GFX::getTextBounds(const __FlashStringHelper *str,
  int16_t x, int16_t y, int16_t *x1, int16_t *y1, uint16_t *w, uint16_t *h) {
@@ -843,6 +855,7 @@ void Adafruit_GFX::getTextBounds(const __FlashStringHelper *str,
 
   } // End classic vs custom font
 }
+#endif
 
 // Return the size of the display (per current rotation)
 int16_t Adafruit_GFX::width(void) const {
@@ -902,7 +915,7 @@ void Adafruit_GFX_Button::drawButton(boolean inverted) {
   _gfx->fillRoundRect(_x - (_w/2), _y - (_h/2), _w, _h, min(_w,_h)/4, fill);
   _gfx->drawRoundRect(_x - (_w/2), _y - (_h/2), _w, _h, min(_w,_h)/4, outline);
 
-  _gfx->setCursor(_x - strlen(_label)*3*_textsize, _y-4*_textsize);
+  _gfx->setCursor((int16_t)(_x - strlen(_label)*3*_textsize), (int16_t)(_y-4*_textsize));
   _gfx->setTextColor(text);
   _gfx->setTextSize(_textsize);
   _gfx->print(_label);
