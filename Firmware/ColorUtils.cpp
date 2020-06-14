@@ -1,6 +1,11 @@
 
 #include "ColorUtils.h"
+#ifdef _WINDOWS
+#define PROGMEM
+#define pgm_read_byte(p) (*p)
+#else
 #include <Arduino.h>
+#endif
 
 // Pass 8-bit (each) R,G,B, get back 16-bit packed color
 uint16_t color565(uint8_t r, uint8_t g, uint8_t b) {

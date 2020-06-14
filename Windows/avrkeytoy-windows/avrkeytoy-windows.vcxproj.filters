@@ -92,9 +92,6 @@
     <ClCompile Include="..\..\Firmware\KeyboardUtil.cpp">
       <Filter>AVRKeyboardToy</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Firmware\main.cpp">
-      <Filter>AVRKeyboardToy</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Firmware\SRXE_Display.cpp">
       <Filter>AVRKeyboardToy</Filter>
     </ClCompile>

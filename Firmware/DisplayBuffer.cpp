@@ -12,12 +12,12 @@ DisplayBuffer::DisplayBuffer(IDisplay *pDisplay) :
     memset(m_colorBuffer, DEFAULT_CURSOR_COLOR, sizeof(m_colorBuffer)); // bg color 14, fg color 6
 }
 
-size_t DisplayBuffer::write(uint8_t c)
+void DisplayBuffer::write(uint8_t c)
 {
-    return write(c, false);
+    write(c, false);
 }
 
-size_t DisplayBuffer::write(uint8_t c, bool ignoreNewlines)
+void DisplayBuffer::write(uint8_t c, bool ignoreNewlines)
 {
     if(!ignoreNewlines && c == '\n') 
     {

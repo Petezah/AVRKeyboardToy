@@ -15,8 +15,8 @@ class DisplayBuffer : Print
 public:
     DisplayBuffer(IDisplay *pDisplay);
 
-    virtual size_t write(uint8_t c);
-    size_t write(uint8_t c, bool ignoreNewlines);
+    virtual void write(uint8_t c);
+    void write(uint8_t c, bool ignoreNewlines);
     void backspace();
     void setChar(int16_t x, int16_t y, unsigned char c, uint8_t color);
 

@@ -24,6 +24,11 @@
 
 #ifdef _WINDOWS
 #define PROGMEM
+#include <time.h>
+unsigned long millis()
+{
+    return (unsigned long)time(nullptr);
+}
 #else
 #if defined(AVR_KEYBOARD_TOY_RELEASE)
 
@@ -90,6 +95,7 @@ void displayTestPattern()
     g_displayBuffer.GetBuffer()[0] = 65;
 }
 
+#ifndef _WINDOWS
 void simpleDisplayTest()
 {
     g_display.fillScreen(0); // BLACK?
@@ -98,6 +104,7 @@ void simpleDisplayTest()
     while (1)
         ;
 }
+#endif
 
 void simpleDisplayTest2()
 {
@@ -135,14 +142,18 @@ void simpleDisplayTest2()
 
 AvrKeyboardToy::AvrKeyboardToy() : m_cursorX(0), m_cursorY(0), m_cursorVisible(true), m_lastCursorMillis(0), m_displayNeedsRefresh(false),
                                    m_keyboardIsActive(false),
-                                   m_interpreterState(InitStart)
+                                   m_interpreterState(InitStart),
+                                   m_lastInputMillis(0),
+                                   m_displayEnabled(true)
 {
 }
 
 void AvrKeyboardToy::Init()
 {
+#ifndef _WINDOWS
     // Arduino init
     init();
+#endif
 
 #ifndef SRXE_KEYBOARD
     Serial.begin(9600);
@@ -302,11 +313,13 @@ void AvrKeyboardToy::UpdateInterpreter()
     }
 }
 
+#ifndef _WINDOWS
 void AvrKeyboardToy::UpdateSerial()
 {
     if (serialEventRun)
         serialEventRun();
 }
+#endif
 
 bool AvrKeyboardToy::UpdateCursor()
 {
@@ -358,6 +371,7 @@ void AvrKeyboardToy::RefreshDisplay(bool clearOnly)
     g_display.drawFastCharBuffer((unsigned char *)pC, pColorBuf);
 }
 
+#ifndef _WINDOWS
 bool AvrKeyboardToy::DispatchSerialInput(char c) // returns true if handled
 {
     switch (c)
@@ -419,6 +433,7 @@ bool AvrKeyboardToy::DispatchSerialInput(char c) // returns true if handled
     // only printables we don't handle end up in "default"
     return true;
 }
+#endif
 
 void AvrKeyboardToy::DispatchSpecialKeyboardInput(char c, uint16_t code)
 {
@@ -498,7 +513,9 @@ void AvrKeyboardToy::DispatchFunctionKeyInput(bool shift, bool ctrl, bool alt, c
     if (shift && !alt && !ctrl)
     {
         unsigned int freq = 300 * (scanCode - PS2_KEY_F1 + 1);
+#ifndef _WINDOWS
         tone(/*kPiezoPin*/ 9, freq, 200);
+#endif
     }
     else if (shift && alt && !ctrl)
     {
@@ -533,7 +550,9 @@ void AvrKeyboardToy::DispatchInputChar(char c, uint16_t code)
 
     case CTRLH:
     case DELETE:
+#ifndef _WINDOWS
         Serial.write(c); // echo on serial
+#endif
         g_displayBuffer.backspace();
         return;
 

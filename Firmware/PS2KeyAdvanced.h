@@ -131,7 +131,9 @@
 
 #ifndef PS2KeyAdvanced_h
 #define PS2KeyAdvanced_h
+#ifndef _WINDOWS
 #include "Arduino.h"
+#endif
 
 /* Flags/bit masks for status bits in returned unsigned int value */
 #define PS2_BREAK   0x8000

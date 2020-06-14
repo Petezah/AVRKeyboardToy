@@ -12,8 +12,14 @@ typedef uint8_t byte;
 const int SCREEN_WIDTH = LCD_WIDTH;
 const int SCREEN_HEIGHT = LCD_HEIGHT;
 
+#include "AvrKeyboardToy.h"
+
+AvrKeyboardToy toy;
+
 int SDL_main(int argc, char* argv[])
 {
+	toy.Init();
+
 	SDL_Window* window = nullptr;
 	SDL_Surface* screenSurface = nullptr;
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
@@ -38,6 +44,10 @@ int SDL_main(int argc, char* argv[])
 			screenSurface = SDL_GetWindowSurface(window);
 			SDL_FillRect(screenSurface, NULL, SDL_MapRGB(screenSurface->format, 0xFF, 0x00, 0x00));
 			SDL_UpdateWindowSurface(window);
+
+			for (;;) {
+				toy.Update();
+			}
 
 			SDL_Delay(2000);
 		}

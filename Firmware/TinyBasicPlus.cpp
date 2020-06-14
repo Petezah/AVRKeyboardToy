@@ -89,6 +89,8 @@
 #ifdef FORCE_DESKTOP 
 #undef ARDUINO
 #include "desktop.h"
+#elif defined(_WINDOWS)
+typedef bool boolean;
 #else
 #include <Arduino.h>
 //#define ARDUINO 1
@@ -253,6 +255,14 @@ void cmd_Files( void );
 #define true 1
 #define false 0
 #endif
+#else
+#include <stdlib.h>
+#include <stdio.h>
+#define kRamSize   4096 /* arbitrary */
+#undef ENABLE_TONES
+#define kRamDisplay (DISPLAY_BUF_SIZE * 2)
+#include <DisplayBuffer.h>
+extern DisplayBuffer g_displayBuffer;
 #endif
 
 #ifndef byte

@@ -10,6 +10,10 @@
 
 #include "ColorUtils.h"
 
+#ifdef _WINDOWS
+#define pgm_read_byte(p) (*p)
+#endif
+
 inline uint16_t swapcolor(uint16_t x) { 
   return (x << 11) | (x & 0x07E0) | (x >> 11);
 }

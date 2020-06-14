@@ -174,7 +174,6 @@
     <ClCompile Include="..\..\Firmware\DisplayBuffer.cpp" />
     <ClCompile Include="..\..\Firmware\glcdfont.c" />
     <ClCompile Include="..\..\Firmware\KeyboardUtil.cpp" />
-    <ClCompile Include="..\..\Firmware\main.cpp" />
     <ClCompile Include="..\..\Firmware\SmartResponseXE\SmartResponseXE.cpp" />
     <ClCompile Include="..\..\Firmware\SRXE_Display.cpp" />
     <ClCompile Include="..\..\Firmware\TinyBasicPlus.cpp" />
